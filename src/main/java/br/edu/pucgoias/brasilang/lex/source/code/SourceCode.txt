@@ -1,0 +1,9 @@
+" inteiro g = 10; // demo\n
+para(int i=0;i<10; i = i + 1){
+  se(i==5){ 
+  	imprima(55) 
+	} 
+   imprima(i); 
+} 
+
+"
