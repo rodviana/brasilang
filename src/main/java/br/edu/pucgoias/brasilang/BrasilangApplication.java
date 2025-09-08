@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import br.edu.pucgoias.brasilang.model.lex.Lexer;
-import br.edu.pucgoias.brasilang.model.lex.Token;
-import br.edu.pucgoias.brasilang.model.lex.EnumTokenType;
-import br.edu.pucgoias.brasilang.service.CEmitterService;
+import br.edu.pucgoias.brasilang.model.lexico.EnumTokenType;
+import br.edu.pucgoias.brasilang.model.lexico.Lexer;
+import br.edu.pucgoias.brasilang.model.lexico.Token;
+import br.edu.pucgoias.brasilang.model.sintaxe.statement.VariableDeclaration;
 import br.edu.pucgoias.brasilang.service.LexerService;
 import jakarta.annotation.PostConstruct;
 
@@ -23,8 +23,7 @@ public class BrasilangApplication {
 
 	@Autowired
 	LexerService lexerService;
-	@Autowired
-	CEmitterService cEmitterService;
+	
     @PostConstruct
     void executar() {
     	List<Token> tokenList = new ArrayList();
@@ -46,7 +45,5 @@ public class BrasilangApplication {
 
         tokenList.forEach(token -> System.out.println(token.toString()));
         
-        System.out.println(cEmitterService.tokensParaC(tokenList));
-
     }
 }

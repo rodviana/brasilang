@@ -1,8 +1,7 @@
-package br.edu.pucgoias.brasilang.model.lex;
+package br.edu.pucgoias.brasilang.model.lexico;
 
 public enum EnumTokenType {
     // keywords (com aliases pt/en)
-    VAR("var"),
     FUNCAO("funcao"),
     RETORNE("retorne"),
     SE("se"),

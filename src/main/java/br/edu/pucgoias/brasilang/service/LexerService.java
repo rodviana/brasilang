@@ -2,13 +2,49 @@ package br.edu.pucgoias.brasilang.service;
 
 import org.springframework.stereotype.Service;
 
-import br.edu.pucgoias.brasilang.model.lex.Lexer;
-import br.edu.pucgoias.brasilang.model.lex.Token;
-import br.edu.pucgoias.brasilang.model.lex.EnumTokenType;
+import br.edu.pucgoias.brasilang.model.lexico.EnumTokenType;
+import br.edu.pucgoias.brasilang.model.lexico.Lexer;
+import br.edu.pucgoias.brasilang.model.lexico.Token;
 
 @Service
 public final class LexerService {
 
+
+    public Token next(Lexer l) {
+        skipWhitespaceAndComments(l);
+
+        int startLine = l.getLine();
+        int startCol  = l.getCol();
+        
+        if (isEndOfSource(l))
+        	return new Token(EnumTokenType.EOF, "", startLine, startCol);
+
+        Token t;
+
+        t = tryReadDoubleOperator(l, startLine, startCol);
+        if (t != null)
+        	return t;
+
+        t = tryReadSingleSymbolOrSimpleOperator(l, startLine, startCol);
+        if (t != null)
+        	return t;
+
+        t = tryReadStringLiteral(l, startLine, startCol);
+        if (t != null) return t;
+        
+        t = tryReadNumber(l, startLine, startCol);
+        if (t != null)
+        	return t;
+
+        t = tryReadIdentifierOrKeyword(l, startLine, startCol);
+        if (t != null)
+        	return t;
+
+        char bad = preVisualizeNextCharacter(l, 0);
+        
+        throw error("Invalid character: '" + bad + "'", startLine, startCol);
+    }
+	
     // ===== core stream helpers =====
     private boolean isEndOfSource(Lexer l) {
         return l.getIndex() >= l.getSource().length();
@@ -207,41 +243,5 @@ public final class LexerService {
 
     private RuntimeException error(String msg, int l, int c) {
         return new RuntimeException("Lexical error at " + l + ":" + c + " - " + msg);
-    }
-
-    // ===== public API =====
-    public Token next(Lexer l) {
-        skipWhitespaceAndComments(l);
-
-        int startLine = l.getLine();
-        int startCol  = l.getCol();
-        
-        if (isEndOfSource(l))
-        	return new Token(EnumTokenType.EOF, "", startLine, startCol);
-
-        Token t;
-
-        t = tryReadDoubleOperator(l, startLine, startCol);
-        if (t != null)
-        	return t;
-
-        t = tryReadSingleSymbolOrSimpleOperator(l, startLine, startCol);
-        if (t != null)
-        	return t;
-
-        t = tryReadStringLiteral(l, startLine, startCol);
-        if (t != null) return t;
-        
-        t = tryReadNumber(l, startLine, startCol);
-        if (t != null)
-        	return t;
-
-        t = tryReadIdentifierOrKeyword(l, startLine, startCol);
-        if (t != null)
-        	return t;
-
-        char bad = preVisualizeNextCharacter(l, 0);
-        
-        throw error("Invalid character: '" + bad + "'", startLine, startCol);
     }
 }

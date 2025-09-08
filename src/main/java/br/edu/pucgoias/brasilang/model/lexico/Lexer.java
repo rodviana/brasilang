@@ -1,6 +1,5 @@
-package br.edu.pucgoias.brasilang.model.lex;
+package br.edu.pucgoias.brasilang.model.lexico;
 
-/** Lexer is a pure state holder; processing happens in LexerService. */
 public final class Lexer {
     private final String src;
     private final KeywordResolver resolver;
@@ -14,8 +13,6 @@ public final class Lexer {
         this.resolver = new KeywordResolver();
     }
 
-
-    // --- accessors for service ---
     public String getSource() { return src; }
     public KeywordResolver getResolver() { return resolver; }
 

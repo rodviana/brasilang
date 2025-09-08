@@ -1,4 +1,4 @@
-package br.edu.pucgoias.brasilang.model.lex;
+package br.edu.pucgoias.brasilang.model.lexico;
 
 public class Token {
     public final EnumTokenType type;
