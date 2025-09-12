@@ -8,6 +8,7 @@ public enum EnumTokenType {
     SENAO("senao"),
     ENQUANTO("enquanto"),
     PARA("para"),
+    IMPRIMA("imprima"),
     INT("inteiro"),
     FLOAT("flutuante"),
     DOUBLE("duplo"),
