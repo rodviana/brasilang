@@ -9,10 +9,11 @@ public class KeywordResolver {
 
 	        case "se"     -> EnumTokenType.SE;
 	        case "senao"  -> EnumTokenType.SENAO;
-	        case "enquanto" -> EnumTokenType.ENQUANTO;
-	        case "para"     -> EnumTokenType.PARA;
+                case "enquanto" -> EnumTokenType.ENQUANTO;
+                case "para"     -> EnumTokenType.PARA;
+                case "imprima"  -> EnumTokenType.IMPRIMA;
 
-	        case "inteiro"       -> EnumTokenType.INT;
+                case "inteiro"       -> EnumTokenType.INT;
 	        case "flutuante"   -> EnumTokenType.FLOAT;
 	        case "duplo"      -> EnumTokenType.DOUBLE;
 	        case "vazio"        -> EnumTokenType.VOID;

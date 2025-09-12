@@ -26,7 +26,7 @@ public class BrasilangApplication {
 	
     @PostConstruct
     void executar() {
-    	List<Token> tokenList = new ArrayList();
+        List<Token> tokenList = new ArrayList<>();
     	String src = """
     			inteiro g = 10; // demo
     			para (inteiro i = 0; i < 10; i = i + 1) {
