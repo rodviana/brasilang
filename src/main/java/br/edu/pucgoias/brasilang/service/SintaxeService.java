@@ -12,6 +12,8 @@ import br.edu.pucgoias.brasilang.model.sintaxe.Sintaxe;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.AbstractExpression;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.Literal;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.Variable;
+import br.edu.pucgoias.brasilang.model.sintaxe.expression.BinaryOperation;
+import br.edu.pucgoias.brasilang.model.sintaxe.expression.UnaryOperation;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.AbstractStatement;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.Assign;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.ConditionalStruct;
@@ -108,21 +110,95 @@ public class SintaxeService {
 	    return block;
 	}
 
-	// Parse expressão simples (exemplo, precisa ser expandido para sua gramática)
-	private AbstractExpression parseExpression(Sintaxe sintaxe) {
-	    Token token = sintaxe.advanceToNextToken();
-	    // Exemplo: apenas literais e identificadores
-	    switch (token.type) {
-	        case INTLIT:
-	        case FLOATLIT:
-	        case STRINGLIT:
-	            return new Literal(token.lexeme);
-	        case ID:
-	            return new Variable(token.lexeme);
-	        default:
-	            throw new RuntimeException("Expressão não suportada: " + token.type);
-	    }
-	}
-	
+        // Entrada principal para análise de expressões
+        private AbstractExpression parseExpression(Sintaxe sintaxe) {
+            return parseEquality(sintaxe);
+        }
+
+        // igualdade (==, !=)
+        private AbstractExpression parseEquality(Sintaxe sintaxe) {
+            AbstractExpression expr = parseComparison(sintaxe);
+            Token next = sintaxe.previewNextToken();
+            while (next != null && (next.type == EnumTokenType.EQ || next.type == EnumTokenType.NEQ)) {
+                Token operator = sintaxe.advanceToNextToken();
+                AbstractExpression right = parseComparison(sintaxe);
+                expr = new BinaryOperation(operator.lexeme, expr, right);
+                next = sintaxe.previewNextToken();
+            }
+            return expr;
+        }
+
+        // comparações (<, <=, >, >=)
+        private AbstractExpression parseComparison(Sintaxe sintaxe) {
+            AbstractExpression expr = parseTerm(sintaxe);
+            Token next = sintaxe.previewNextToken();
+            while (next != null && (next.type == EnumTokenType.LT || next.type == EnumTokenType.LE ||
+                                    next.type == EnumTokenType.GT || next.type == EnumTokenType.GE)) {
+                Token operator = sintaxe.advanceToNextToken();
+                AbstractExpression right = parseTerm(sintaxe);
+                expr = new BinaryOperation(operator.lexeme, expr, right);
+                next = sintaxe.previewNextToken();
+            }
+            return expr;
+        }
+
+        // termos (+, -)
+        private AbstractExpression parseTerm(Sintaxe sintaxe) {
+            AbstractExpression expr = parseFactor(sintaxe);
+            Token next = sintaxe.previewNextToken();
+            while (next != null && (next.type == EnumTokenType.PLUS || next.type == EnumTokenType.MINUS)) {
+                Token operator = sintaxe.advanceToNextToken();
+                AbstractExpression right = parseFactor(sintaxe);
+                expr = new BinaryOperation(operator.lexeme, expr, right);
+                next = sintaxe.previewNextToken();
+            }
+            return expr;
+        }
+
+        // fatores (*, /)
+        private AbstractExpression parseFactor(Sintaxe sintaxe) {
+            AbstractExpression expr = parseUnary(sintaxe);
+            Token next = sintaxe.previewNextToken();
+            while (next != null && (next.type == EnumTokenType.STAR || next.type == EnumTokenType.SLASH)) {
+                Token operator = sintaxe.advanceToNextToken();
+                AbstractExpression right = parseUnary(sintaxe);
+                expr = new BinaryOperation(operator.lexeme, expr, right);
+                next = sintaxe.previewNextToken();
+            }
+            return expr;
+        }
+
+        // unários (-, +)
+        private AbstractExpression parseUnary(Sintaxe sintaxe) {
+            Token next = sintaxe.previewNextToken();
+            if (next != null && (next.type == EnumTokenType.MINUS || next.type == EnumTokenType.PLUS)) {
+                Token operator = sintaxe.advanceToNextToken();
+                AbstractExpression right = parseUnary(sintaxe);
+                return new UnaryOperation(operator.lexeme, right);
+            }
+            return parsePrimary(sintaxe);
+        }
+
+        // primários (literais, variáveis, parênteses)
+        private AbstractExpression parsePrimary(Sintaxe sintaxe) {
+            Token token = sintaxe.advanceToNextToken();
+            if (token == null) {
+                throw new RuntimeException("Expressão incompleta");
+            }
+            switch (token.type) {
+                case INTLIT:
+                case FLOATLIT:
+                case STRINGLIT:
+                    return new Literal(token.lexeme);
+                case ID:
+                    return new Variable(token.lexeme);
+                case LPAR:
+                    AbstractExpression expr = parseExpression(sintaxe);
+                    sintaxe.advanceToNextToken(); // RPAR
+                    return expr;
+                default:
+                    throw new RuntimeException("Expressão não suportada: " + token.type);
+            }
+        }
 
 }
