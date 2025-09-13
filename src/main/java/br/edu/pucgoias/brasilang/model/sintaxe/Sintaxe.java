@@ -10,7 +10,7 @@ public class Sintaxe {
 	private int position;
 	
 	
-	Sintaxe(List<Token> tokenList){
+	public Sintaxe(List<Token> tokenList){
 		this.tokenList = tokenList;
 		this.position = 0;
 	}
@@ -30,14 +30,14 @@ public class Sintaxe {
 	}
 	
 	public Token previewNextToken() {
-		if(tokenList.size() <= position+1)
+		if(tokenList.size() >= position+1)
 			return this.tokenList.get(position+1);
 		else
 			return null;
 	}
 	
 	public Token advanceToNextToken() {
-		if(tokenList.size() <= position+1) {
+		if(tokenList.size() >= position+1) {
 			this.position++;
 			return this.tokenList.get(position);
 		}
