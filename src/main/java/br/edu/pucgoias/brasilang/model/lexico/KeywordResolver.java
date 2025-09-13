@@ -1,10 +1,10 @@
 package br.edu.pucgoias.brasilang.model.lexico;
 
 public class KeywordResolver {
-	
-	public EnumTokenType resolve(String s) {
-	    return switch (s) {
-	        case "funcao" -> EnumTokenType.FUNCAO;
+
+        public EnumTokenType resolve(String s) {
+            return switch (s) {
+                case "funcao" -> EnumTokenType.FUNCAO;
 	        case "retorne"-> EnumTokenType.RETORNE;
 
 	        case "se"     -> EnumTokenType.SE;
@@ -18,7 +18,12 @@ public class KeywordResolver {
 	        case "duplo"      -> EnumTokenType.DOUBLE;
 	        case "vazio"        -> EnumTokenType.VOID;
 
-	        default -> null;
-	    };
-	}
+                default -> null;
+            };
+        }
+
+        @Override
+        public String toString() {
+            return String.format("KeywordResolver{}");
+        }
 }

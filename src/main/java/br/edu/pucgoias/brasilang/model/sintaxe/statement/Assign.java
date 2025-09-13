@@ -8,9 +8,14 @@ public class Assign implements AbstractStatement {
 	private String variableName;
 	private AbstractExpression newValue;
 	
-	public Assign(String variableName, AbstractExpression newValue) {
-		super();
-		this.variableName = variableName;
-		this.newValue = newValue;
-	}
+        public Assign(String variableName, AbstractExpression newValue) {
+                super();
+                this.variableName = variableName;
+                this.newValue = newValue;
+        }
+
+        @Override
+        public String toString() {
+                return String.format("Assign{variableName='%s', newValue=%s}", variableName, newValue);
+        }
 }

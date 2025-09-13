@@ -10,4 +10,9 @@ public class BinaryOperation implements AbstractExpression{
                 this.leftExpression = leftExpression;
                 this.rightExpression = rightExpression;
         }
+
+        @Override
+        public String toString() {
+                return String.format("BinaryOperation{operator='%s', leftExpression=%s, rightExpression=%s}", operator, leftExpression, rightExpression);
+        }
 }

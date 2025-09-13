@@ -13,4 +13,9 @@ public class Print implements AbstractStatement {
     public AbstractExpression getExpression() {
         return expression;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Print{expression=%s}", expression);
+    }
 }

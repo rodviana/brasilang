@@ -8,4 +8,9 @@ public class UnaryOperation implements AbstractExpression {
                 this.operator = operator;
                 this.expression = expression;
         }
+
+        @Override
+        public String toString() {
+                return String.format("UnaryOperation{operator='%s', expression=%s}", operator, expression);
+        }
 }
