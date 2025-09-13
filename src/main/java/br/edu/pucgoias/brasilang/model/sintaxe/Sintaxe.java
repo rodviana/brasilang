@@ -37,8 +37,12 @@ public class Sintaxe {
        }
 
        public Token advanceToNextToken() {
-               if(position < tokenList.size())
-                       return this.tokenList.get(position++);
+               if(position < tokenList.size()) {
+            	   Token token = this.tokenList.get(position);
+            	   position++;
+            	   return token;
+               }
+                       
                else
                        return null;
        }
