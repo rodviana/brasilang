@@ -25,10 +25,13 @@ import br.edu.pucgoias.brasilang.model.sintaxe.statement.Print;
 public class SintaxeService {
 	
 	public List<AbstractStatement> buildProgramStatementList(Sintaxe sintaxe) {
-                List<AbstractStatement> program = new ArrayList<>();
-		
-		while(! this.isNextTokenEOF(sintaxe))
-			program.add(this.getNextStatement(sintaxe));
+        List<AbstractStatement> program = new ArrayList<>();
+		try{
+			while(! this.isNextTokenEOF(sintaxe))
+				program.add(this.getNextStatement(sintaxe));
+		}catch(Exception e) {
+			program.forEach(statement -> System.out.println(statement.toString()));
+		}
 		
 		return program;
 	}
