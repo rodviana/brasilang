@@ -29,21 +29,19 @@ public class Sintaxe {
 		this.position = position;
 	}
 	
-	public Token previewNextToken() {
-		if(tokenList.size() >= position+1)
-			return this.tokenList.get(position+1);
-		else
-			return null;
-	}
-	
-        public Token advanceToNextToken() {
-                if(tokenList.size() >= position+1) {
-                        this.position++;
-                        return this.tokenList.get(position);
-                }
-                else
-                        return null;
-        }
+       public Token previewNextToken() {
+               if(position < tokenList.size())
+                       return this.tokenList.get(position);
+               else
+                       return null;
+       }
+
+       public Token advanceToNextToken() {
+               if(position < tokenList.size())
+                       return this.tokenList.get(position++);
+               else
+                       return null;
+       }
 
         @Override
         public String toString() {
