@@ -4,11 +4,15 @@ public class Literal implements AbstractExpression{
 	
 	private Object value;
 
-	public Literal(Object value) {
-		super();
-		this.value = value;
-	}
-	
-	
+        public Literal(Object value) {
+                super();
+                this.value = value;
+        }
 
-}
+
+        @Override
+        public String toString() {
+                return String.format("Literal{value=%s}", value);
+        }
+
+ }

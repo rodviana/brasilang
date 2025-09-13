@@ -24,4 +24,9 @@ public final class Lexer {
 
     public int getCol() { return col; }
     public void setCol(int col) { this.col = col; }
+
+    @Override
+    public String toString() {
+        return String.format("Lexer{src='%s', resolver=%s, index=%d, line=%d, col=%d}", src, resolver, index, line, col);
+    }
 }

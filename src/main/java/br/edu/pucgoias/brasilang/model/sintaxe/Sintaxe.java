@@ -36,13 +36,18 @@ public class Sintaxe {
 			return null;
 	}
 	
-	public Token advanceToNextToken() {
-		if(tokenList.size() >= position+1) {
-			this.position++;
-			return this.tokenList.get(position);
-		}
-		else
-			return null;
-	}
-	
+        public Token advanceToNextToken() {
+                if(tokenList.size() >= position+1) {
+                        this.position++;
+                        return this.tokenList.get(position);
+                }
+                else
+                        return null;
+        }
+
+        @Override
+        public String toString() {
+                return String.format("Sintaxe{tokenList=%s, position=%d}", tokenList, position);
+        }
+
 }

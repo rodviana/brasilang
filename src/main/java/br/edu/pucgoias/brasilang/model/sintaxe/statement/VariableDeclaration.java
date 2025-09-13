@@ -10,11 +10,16 @@ public class VariableDeclaration implements AbstractStatement{
 	private EnumTokenType tokenType;
 	private AbstractExpression initialization;
 	
-	public VariableDeclaration(String variableName, EnumTokenType tokenType, AbstractExpression initialization) {
-		super();
-		this.variableName = variableName;
-		this.tokenType = tokenType;
-		this.initialization = initialization;
-	}
+        public VariableDeclaration(String variableName, EnumTokenType tokenType, AbstractExpression initialization) {
+                super();
+                this.variableName = variableName;
+                this.tokenType = tokenType;
+                this.initialization = initialization;
+        }
 
-}
+        @Override
+        public String toString() {
+                return String.format("VariableDeclaration{variableName='%s', tokenType=%s, initialization=%s}", variableName, tokenType, initialization);
+        }
+
+ }
