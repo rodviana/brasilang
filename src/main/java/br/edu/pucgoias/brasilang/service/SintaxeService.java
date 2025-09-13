@@ -19,6 +19,7 @@ import br.edu.pucgoias.brasilang.model.sintaxe.statement.Assign;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.ConditionalStruct;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.RepetitionStruct;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.VariableDeclaration;
+import br.edu.pucgoias.brasilang.model.sintaxe.statement.Print;
 
 @Service
 public class SintaxeService {
@@ -42,16 +43,18 @@ public class SintaxeService {
             switch (token.type) {
                 case INT:
                     return parseVariableDeclaration(sintaxe, token);
-	        case ID:
-	            return parseAssign(sintaxe, token);
-	        case SE:
-	            return parseConditionalStruct(sintaxe);
-	        case ENQUANTO:
-	        case PARA:
-	            return parseRepetitionStruct(sintaxe, token.type);
-	        default:
-	            throw new RuntimeException("Token inesperado: " + token.type);
-	    }
+                case ID:
+                    return parseAssign(sintaxe, token);
+                case SE:
+                    return parseConditionalStruct(sintaxe);
+                case IMPRIMA:
+                    return parsePrint(sintaxe);
+                case ENQUANTO:
+                case PARA:
+                    return parseRepetitionStruct(sintaxe, token.type);
+                default:
+                    throw new RuntimeException("Token inesperado: " + token.type);
+            }
 	}
 
         // Parse declaração de variável: inteiro g = 10;
@@ -63,12 +66,21 @@ public class SintaxeService {
             return new VariableDeclaration(varName.lexeme, typeToken.type, expr);
         }
 
-	// Parse atribuição: x = 5;
+        // Parse atribuição: x = 5;
         private Assign parseAssign(Sintaxe sintaxe, Token idToken) {
             Token assignToken = sintaxe.advanceToNextToken(); // ASSIGN
             AbstractExpression expr = parseExpression(sintaxe);
             Token semiToken = sintaxe.advanceToNextToken(); // SEMI
             return new Assign(idToken.lexeme, expr);
+        }
+
+        // Parse comando de impressão: imprima(expr);
+        private Print parsePrint(Sintaxe sintaxe) {
+            Token lpar = sintaxe.advanceToNextToken(); // LPAR
+            AbstractExpression expr = parseExpression(sintaxe);
+            Token rpar = sintaxe.advanceToNextToken(); // RPAR
+            Token semiToken = sintaxe.advanceToNextToken(); // SEMI
+            return new Print(expr);
         }
 
 	// Parse estrutura condicional: se (...) { ... } senao { ... }
