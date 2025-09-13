@@ -4,6 +4,7 @@ import java.util.List;
 
 import br.edu.pucgoias.brasilang.model.lexico.EnumTokenType;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.AbstractExpression;
+import br.edu.pucgoias.brasilang.translate.TranslationContext;
 
 public class RepetitionStruct implements AbstractStatement{
 	
@@ -18,6 +19,23 @@ public class RepetitionStruct implements AbstractStatement{
         }
 
 
+
+        @Override
+        public void translate(TranslationContext ctx) {
+                String header;
+                if (type == EnumTokenType.ENQUANTO) {
+                        header = "while (" + flag.translate(ctx) + ") {";
+                } else {
+                        header = "for (; " + flag.translate(ctx) + "; ) {";
+                }
+                ctx.getBuilder().appendLine(header);
+                ctx.getBuilder().indent();
+                for (AbstractStatement st : loopBody) {
+                        st.translate(ctx);
+                }
+                ctx.getBuilder().outdent();
+                ctx.getBuilder().appendLine("}");
+        }
 
         @Override
         public String toString() {
