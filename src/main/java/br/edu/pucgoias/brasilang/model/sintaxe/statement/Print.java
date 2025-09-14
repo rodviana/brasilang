@@ -1,6 +1,7 @@
 package br.edu.pucgoias.brasilang.model.sintaxe.statement;
 
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.AbstractExpression;
+import br.edu.pucgoias.brasilang.translate.TranslationContext;
 
 public class Print implements AbstractStatement {
 
@@ -12,6 +13,12 @@ public class Print implements AbstractStatement {
 
     public AbstractExpression getExpression() {
         return expression;
+    }
+
+    @Override
+    public void translate(TranslationContext ctx) {
+        ctx.addInclude("<stdio.h>");
+        ctx.getBuilder().appendLine("printf(" + expression.translate(ctx) + ");");
     }
 
     @Override

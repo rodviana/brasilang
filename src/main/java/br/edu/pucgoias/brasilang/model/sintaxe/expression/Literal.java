@@ -1,5 +1,7 @@
 package br.edu.pucgoias.brasilang.model.sintaxe.expression;
 
+import br.edu.pucgoias.brasilang.translate.TranslationContext;
+
 public class Literal implements AbstractExpression{
 	
 	private Object value;
@@ -9,6 +11,14 @@ public class Literal implements AbstractExpression{
                 this.value = value;
         }
 
+
+        @Override
+        public String translate(TranslationContext ctx) {
+                if (value instanceof String) {
+                        return "\"" + value + "\"";
+                }
+                return String.valueOf(value);
+        }
 
         @Override
         public String toString() {

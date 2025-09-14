@@ -1,5 +1,7 @@
 package br.edu.pucgoias.brasilang.model.sintaxe.expression;
 
+import br.edu.pucgoias.brasilang.translate.TranslationContext;
+
 public class BinaryOperation implements AbstractExpression{
         private String operator;
         private AbstractExpression leftExpression;
@@ -9,6 +11,11 @@ public class BinaryOperation implements AbstractExpression{
                 this.operator = operator;
                 this.leftExpression = leftExpression;
                 this.rightExpression = rightExpression;
+        }
+
+        @Override
+        public String translate(TranslationContext ctx) {
+                return leftExpression.translate(ctx) + " " + operator + " " + rightExpression.translate(ctx);
         }
 
         @Override
