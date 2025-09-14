@@ -1,5 +1,8 @@
 package br.edu.pucgoias.brasilang.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import br.edu.pucgoias.brasilang.model.lexico.EnumTokenType;
@@ -8,6 +11,17 @@ import br.edu.pucgoias.brasilang.model.lexico.Token;
 
 @Service
 public final class LexerService {
+
+
+    public List<Token> buildTokenList(Lexer lexer) {
+        List<Token> tokenList = new ArrayList<>();
+        Token currentToken;
+        do {
+            currentToken = next(lexer);
+            tokenList.add(currentToken);
+        } while (currentToken.type != EnumTokenType.EOF);
+        return tokenList;
+    }
 
 
     public Token next(Lexer l) {
@@ -196,7 +210,7 @@ public final class LexerService {
         }
         
         String lex = sb.toString();
-        EnumTokenType kw = l.getResolver().resolve(lex); // <-- pulled from Lexer
+        EnumTokenType kw = EnumTokenType.resolve(lex);
         
         return new Token(kw != null ? kw : EnumTokenType.ID, lex, startLine, startCol);
     }
