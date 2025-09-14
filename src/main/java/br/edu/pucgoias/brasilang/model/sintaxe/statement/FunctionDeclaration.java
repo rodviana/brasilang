@@ -46,4 +46,26 @@ public class FunctionDeclaration implements AbstractStatement {
         ctx.getBuilder().appendLine("}");
         ctx.getBuilder().appendLine("");
     }
+
+    @Override
+    public String toString() {
+        StringBuilder paramSb = new StringBuilder();
+        for (Parameter p : parameters) {
+            paramSb.append("    ").append(p.name).append(":" + p.type).append("\n");
+        }
+        StringBuilder bodySb = new StringBuilder();
+        for (AbstractStatement st : body) {
+            bodySb.append("    ").append(indent(st.toString())).append("\n");
+        }
+        return "FunctionDeclaration{\n" +
+                "  returnType=" + returnType + ",\n" +
+                "  name='" + name + "',\n" +
+                "  parameters=[\n" + paramSb.toString() + "  ],\n" +
+                "  body=[\n" + bodySb.toString() + "  ]\n" +
+                "}";
+    }
+
+    private static String indent(String str) {
+        return str.replace("\n", "\n    ");
+    }
 }

@@ -37,9 +37,31 @@ public class ConditionalStruct implements AbstractStatement {
                 ctx.getBuilder().appendLine("}");
         }
 
-        @Override
-        public String toString() {
-                return String.format("ConditionalStruct{flag=%s, ifBody=%s, elseBody=%s}", flag, ifBody, elseBody);
-        }
+@Override
+public String toString() {
+StringBuilder ifSb = new StringBuilder();
+for (AbstractStatement st : ifBody) {
+ifSb.append("    ").append(indent(st.toString())).append("\n");
+}
+String elsePart;
+if (elseBody != null) {
+StringBuilder elseSb = new StringBuilder();
+for (AbstractStatement st : elseBody) {
+elseSb.append("    ").append(indent(st.toString())).append("\n");
+}
+elsePart = "[\n" + elseSb.toString() + "  ]";
+} else {
+elsePart = "null";
+}
+return "ConditionalStruct{\n" +
+"  flag=" + flag + ",\n" +
+"  ifBody=[\n" + ifSb.toString() + "  ],\n" +
+"  elseBody=" + elsePart + "\n" +
+"}";
+}
+
+private static String indent(String str) {
+return str.replace("\n", "\n    ");
+}
 
  }

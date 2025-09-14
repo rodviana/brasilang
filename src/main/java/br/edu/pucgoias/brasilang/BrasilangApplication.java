@@ -12,8 +12,10 @@ import br.edu.pucgoias.brasilang.model.lexico.Lexer;
 import br.edu.pucgoias.brasilang.model.lexico.Token;
 import br.edu.pucgoias.brasilang.model.sintaxe.Sintaxe;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.AbstractStatement;
+import br.edu.pucgoias.brasilang.model.sintaxe.statement.Program;
 import br.edu.pucgoias.brasilang.service.LexerService;
 import br.edu.pucgoias.brasilang.service.SintaxeService;
+import br.edu.pucgoias.brasilang.translate.TranslateService;
 import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication
@@ -51,10 +53,14 @@ public class BrasilangApplication {
 
         tokenList.forEach(token -> System.out.println(token.toString()));
         Sintaxe sintaxe = new Sintaxe(tokenList);
-        List<AbstractStatement> program = sintaxeService.buildProgramStatementList(sintaxe);
-        
-        program.forEach(statement -> System.out.println(statement.toString()));
-        
-        
+        List<AbstractStatement> statements = sintaxeService.buildProgramStatementList(sintaxe);
+
+        statements.forEach(statement -> System.out.println(statement.toString()));
+
+        TranslateService translateService = new TranslateService();
+        Program program = new Program(statements);
+        String cCode = translateService.generateCode(program);
+        System.out.println(cCode);
+
     }
 }
