@@ -35,7 +35,7 @@ public class Print implements AbstractStatement {
                 format = "%f";
             }
         }
-        ctx.getBuilder().appendLine("printf(\"" + format + "\", " + exprCode + ");");
+        ctx.getBuilder().appendLine("printf(\"" + format + "\\n\", " + exprCode + ");");
     }
 
     @Override

@@ -36,8 +36,10 @@ public enum EnumTokenType {
         }
     }
 
-    /** Retorna o TokenType se for palavra-chave; senão null. */
-    public static EnumTokenType fromLexeme(String id) {
+    /**
+     * Resolve o tipo do token a partir do lexema se ele for uma palavra-chave; caso contrário retorna null.
+     */
+    public static EnumTokenType resolve(String id) {
         return BY_LEXEME.get(id);
     }
 

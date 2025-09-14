@@ -1,13 +1,11 @@
 package br.edu.pucgoias.brasilang;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import br.edu.pucgoias.brasilang.model.lexico.EnumTokenType;
 import br.edu.pucgoias.brasilang.model.lexico.Lexer;
 import br.edu.pucgoias.brasilang.model.lexico.Token;
 import br.edu.pucgoias.brasilang.model.sintaxe.Sintaxe;
@@ -34,7 +32,6 @@ public class BrasilangApplication {
 	
     @PostConstruct
     void executar() {
-        List<Token> tokenList = new ArrayList<>();
         String src = """
                         inteiro g = 10;
                         flutuante f = 1.5;
@@ -53,12 +50,8 @@ public class BrasilangApplication {
                         }
                         imprima(f);
                         """;
-    	Lexer lexer = new Lexer(src);
-    	Token currentToken;
-        do {
-        	currentToken = lexerService.next(lexer);
-        	tokenList.add(currentToken);
-        } while (currentToken.type != EnumTokenType.EOF);
+        Lexer lexer = new Lexer(src);
+        List<Token> tokenList = lexerService.buildTokenList(lexer);
 
         tokenList.forEach(token -> System.out.println(token.toString()));
         Sintaxe sintaxe = new Sintaxe(tokenList);
