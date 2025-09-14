@@ -15,7 +15,7 @@ import br.edu.pucgoias.brasilang.model.sintaxe.statement.AbstractStatement;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.Program;
 import br.edu.pucgoias.brasilang.service.LexerService;
 import br.edu.pucgoias.brasilang.service.SintaxeService;
-import br.edu.pucgoias.brasilang.translate.TranslateService;
+import br.edu.pucgoias.brasilang.service.TranslateService;
 import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication
@@ -29,6 +29,8 @@ public class BrasilangApplication {
 	LexerService lexerService;
 	@Autowired
 	SintaxeService sintaxeService;
+	@Autowired
+	TranslateService translateService;
 	
     @PostConstruct
     void executar() {
@@ -36,7 +38,7 @@ public class BrasilangApplication {
     	String src = """
     			inteiro g = 10; // demo
     			inteiro i = 0; 
-    			para (i < 10) {
+    			enquanto (i < 10) {
     			  se (i == 5) {
     			    imprima(55);
     			  }
@@ -57,7 +59,6 @@ public class BrasilangApplication {
 
         statements.forEach(statement -> System.out.println(statement.toString()));
 
-        TranslateService translateService = new TranslateService();
         Program program = new Program(statements);
         String cCode = translateService.generateCode(program);
         System.out.println(cCode);

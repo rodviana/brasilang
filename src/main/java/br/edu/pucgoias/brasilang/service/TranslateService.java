@@ -1,10 +1,15 @@
-package br.edu.pucgoias.brasilang.translate;
+package br.edu.pucgoias.brasilang.service;
+
+import org.springframework.stereotype.Service;
 
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.AbstractStatement;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.FunctionDeclaration;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.Program;
+import br.edu.pucgoias.brasilang.translate.CodeBuilder;
+import br.edu.pucgoias.brasilang.translate.TranslationContext;
 
 /** Service responsible for orchestrating AST translation to C code. */
+@Service
 public class TranslateService {
 
     /** Generates complete C source code for the provided AST. */
