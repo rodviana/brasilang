@@ -4,11 +4,15 @@ import br.edu.pucgoias.brasilang.translate.TranslationContext;
 
 public class Literal implements AbstractExpression{
 	
-	private Object value;
+        private Object value;
 
         public Literal(Object value) {
                 super();
                 this.value = value;
+        }
+
+        public Object getValue() {
+                return value;
         }
 
 

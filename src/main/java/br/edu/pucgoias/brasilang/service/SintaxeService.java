@@ -45,6 +45,8 @@ public class SintaxeService {
 
             switch (token.type) {
                 case INT:
+                case FLOAT:
+                case DOUBLE:
                     return parseVariableDeclaration(sintaxe, token);
                 case ID:
                     return parseAssign(sintaxe, token);
@@ -200,7 +202,9 @@ public class SintaxeService {
             }
             switch (token.type) {
                 case INTLIT:
+                    return new Literal(Integer.parseInt(token.lexeme));
                 case FLOATLIT:
+                    return new Literal(Double.parseDouble(token.lexeme));
                 case STRINGLIT:
                     return new Literal(token.lexeme);
                 case ID:
