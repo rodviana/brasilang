@@ -4,11 +4,15 @@ import br.edu.pucgoias.brasilang.translate.TranslationContext;
 
 public class Variable implements AbstractExpression {
 	
-	private String name;
+        private String name;
 
         public Variable(String name) {
                 super();
                 this.name = name;
+        }
+
+        public String getName() {
+                return name;
         }
 
 

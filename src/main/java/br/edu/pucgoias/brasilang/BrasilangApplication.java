@@ -35,17 +35,24 @@ public class BrasilangApplication {
     @PostConstruct
     void executar() {
         List<Token> tokenList = new ArrayList<>();
-    	String src = """
-    			inteiro g = 10; // demo
-    			inteiro i = 0; 
-    			enquanto (i < 10) {
-    			  se (i == 5) {
-    			    imprima(55);
-    			  }
-    			  imprima(i);
-    			  i = i + 1;
-    			}
-    			""";
+        String src = """
+                        inteiro g = 10;
+                        flutuante f = 1.5;
+                        inteiro i = 0;
+                        para (i < 3) {
+                          imprima(i);
+                          i = i + 1;
+                        }
+                        enquanto (g > 0) {
+                          se (g == 5) {
+                            imprima("metade");
+                          } senao {
+                            imprima(g);
+                          }
+                          g = g - 1;
+                        }
+                        imprima(f);
+                        """;
     	Lexer lexer = new Lexer(src);
     	Token currentToken;
         do {
