@@ -23,4 +23,19 @@ public class Program implements AbstractStatement {
             st.translate(ctx);
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (AbstractStatement st : statements) {
+            sb.append("    ").append(indent(st.toString())).append("\n");
+        }
+        return "Program{\n" +
+                "  statements=[\n" + sb.toString() + "  ]\n" +
+                "}";
+    }
+
+    private static String indent(String str) {
+        return str.replace("\n", "\n    ");
+    }
 }

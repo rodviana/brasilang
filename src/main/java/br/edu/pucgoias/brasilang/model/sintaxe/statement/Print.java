@@ -21,8 +21,10 @@ public class Print implements AbstractStatement {
         ctx.getBuilder().appendLine("printf(" + expression.translate(ctx) + ");");
     }
 
-    @Override
-    public String toString() {
-        return String.format("Print{expression=%s}", expression);
-    }
+@Override
+public String toString() {
+return "Print{\n" +
+"  expression=" + expression + "\n" +
+"}";
+}
 }

@@ -7,14 +7,8 @@ import br.edu.pucgoias.brasilang.model.sintaxe.statement.Program;
 /** Service responsible for orchestrating AST translation to C code. */
 public class TranslateService {
 
-    private final Program program;
-
-    public TranslateService(Program program) {
-        this.program = program;
-    }
-
     /** Generates complete C source code for the provided AST. */
-    public String generateCode() {
+    public String generateCode(Program program) {
         CodeBuilder builder = new CodeBuilder();
         TranslationContext ctx = new TranslationContext(builder);
 

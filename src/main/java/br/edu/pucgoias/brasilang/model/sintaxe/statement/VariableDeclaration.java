@@ -30,9 +30,13 @@ public class VariableDeclaration implements AbstractStatement{
                 ctx.getBuilder().appendLine(line);
         }
 
-        @Override
-        public String toString() {
-                return String.format("VariableDeclaration{variableName='%s', tokenType=%s, initialization=%s}", variableName, tokenType, initialization);
-        }
+@Override
+public String toString() {
+return "VariableDeclaration{\n" +
+"  variableName='" + variableName + "',\n" +
+"  tokenType=" + tokenType + ",\n" +
+"  initialization=" + initialization + "\n" +
+"}";
+}
 
- }
+}

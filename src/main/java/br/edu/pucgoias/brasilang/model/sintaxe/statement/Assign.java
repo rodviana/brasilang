@@ -21,8 +21,11 @@ public class Assign implements AbstractStatement {
                         .appendLine(variableName + " = " + newValue.translate(ctx) + ";");
         }
 
-        @Override
-        public String toString() {
-                return String.format("Assign{variableName='%s', newValue=%s}", variableName, newValue);
-        }
+@Override
+public String toString() {
+return "Assign{\n" +
+"  variableName='" + variableName + "',\n" +
+"  newValue=" + newValue + "\n" +
+"}";
+}
 }

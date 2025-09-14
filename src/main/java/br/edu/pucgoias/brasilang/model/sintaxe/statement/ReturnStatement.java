@@ -16,4 +16,11 @@ public class ReturnStatement implements AbstractStatement {
     public void translate(TranslationContext ctx) {
         ctx.getBuilder().appendLine("return " + expression.translate(ctx) + ";");
     }
+
+    @Override
+    public String toString() {
+        return "ReturnStatement{\n" +
+                "  expression=" + expression + "\n" +
+                "}";
+    }
 }

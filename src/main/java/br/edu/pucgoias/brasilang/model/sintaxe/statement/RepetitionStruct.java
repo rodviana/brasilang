@@ -37,9 +37,21 @@ public class RepetitionStruct implements AbstractStatement{
                 ctx.getBuilder().appendLine("}");
         }
 
-        @Override
-        public String toString() {
-                return String.format("RepetitionStruct{type=%s, flag=%s, loopBody=%s}", type, flag, loopBody);
-        }
+@Override
+public String toString() {
+StringBuilder body = new StringBuilder();
+for (AbstractStatement st : loopBody) {
+body.append("    ").append(indent(st.toString())).append("\n");
+}
+return "RepetitionStruct{\n" +
+"  type=" + type + ",\n" +
+"  flag=" + flag + ",\n" +
+"  loopBody=[\n" + body.toString() + "  ]\n" +
+"}";
+}
+
+private static String indent(String str) {
+return str.replace("\n", "\n    ");
+}
 
  }
