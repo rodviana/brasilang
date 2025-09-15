@@ -1,4 +1,4 @@
-package br.edu.pucgoias.brasilang.translate;
+package br.edu.pucgoias.brasilang.model.translate;
 
 import java.util.LinkedHashSet;
 import java.util.HashMap;

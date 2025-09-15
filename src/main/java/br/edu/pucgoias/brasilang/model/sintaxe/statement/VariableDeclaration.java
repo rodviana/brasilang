@@ -2,7 +2,7 @@ package br.edu.pucgoias.brasilang.model.sintaxe.statement;
 
 import br.edu.pucgoias.brasilang.model.lexico.EnumTokenType;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.AbstractExpression;
-import br.edu.pucgoias.brasilang.translate.TranslationContext;
+import br.edu.pucgoias.brasilang.model.translate.TranslationContext;
 
 
 public class VariableDeclaration implements AbstractStatement{

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import br.edu.pucgoias.brasilang.model.lexico.EnumTokenType;
-import br.edu.pucgoias.brasilang.translate.TranslationContext;
+import br.edu.pucgoias.brasilang.model.translate.TranslationContext;
 
 /** Represents a function definition. */
 public class FunctionDeclaration implements AbstractStatement {

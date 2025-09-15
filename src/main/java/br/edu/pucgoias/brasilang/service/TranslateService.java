@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.AbstractStatement;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.FunctionDeclaration;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.Program;
-import br.edu.pucgoias.brasilang.translate.CodeBuilder;
-import br.edu.pucgoias.brasilang.translate.TranslationContext;
+import br.edu.pucgoias.brasilang.model.translate.CodeBuilder;
+import br.edu.pucgoias.brasilang.model.translate.TranslationContext;
 
 /** Service responsible for orchestrating AST translation to C code. */
 @Service

@@ -1,4 +1,4 @@
-package br.edu.pucgoias.brasilang.translate;
+package br.edu.pucgoias.brasilang.model.translate;
 
 /** Utility to help building C code with proper indentation. */
 public class CodeBuilder {

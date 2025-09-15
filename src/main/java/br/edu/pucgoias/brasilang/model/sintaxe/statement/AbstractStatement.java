@@ -1,6 +1,6 @@
 package br.edu.pucgoias.brasilang.model.sintaxe.statement;
 
-import br.edu.pucgoias.brasilang.translate.TranslationContext;
+import br.edu.pucgoias.brasilang.model.translate.TranslationContext;
 
 /**
  * Base interface for all statement nodes in the AST. Statements append their

@@ -3,7 +3,7 @@ package br.edu.pucgoias.brasilang.model.sintaxe.expression;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import br.edu.pucgoias.brasilang.translate.TranslationContext;
+import br.edu.pucgoias.brasilang.model.translate.TranslationContext;
 
 /** Expression representing a function invocation. */
 public class FunctionCall implements AbstractExpression {

@@ -3,7 +3,7 @@ package br.edu.pucgoias.brasilang.model.sintaxe.statement;
 import java.util.List;
 
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.AbstractExpression;
-import br.edu.pucgoias.brasilang.translate.TranslationContext;
+import br.edu.pucgoias.brasilang.model.translate.TranslationContext;
 
 public class ConditionalStruct implements AbstractStatement {
 	

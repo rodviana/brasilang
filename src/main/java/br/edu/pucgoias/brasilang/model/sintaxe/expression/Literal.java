@@ -1,6 +1,6 @@
 package br.edu.pucgoias.brasilang.model.sintaxe.expression;
 
-import br.edu.pucgoias.brasilang.translate.TranslationContext;
+import br.edu.pucgoias.brasilang.model.translate.TranslationContext;
 
 public class Literal implements AbstractExpression{
 	

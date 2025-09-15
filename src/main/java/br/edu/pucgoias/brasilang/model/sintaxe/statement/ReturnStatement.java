@@ -1,7 +1,7 @@
 package br.edu.pucgoias.brasilang.model.sintaxe.statement;
 
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.AbstractExpression;
-import br.edu.pucgoias.brasilang.translate.TranslationContext;
+import br.edu.pucgoias.brasilang.model.translate.TranslationContext;
 
 /** Statement that returns a value from a function. */
 public class ReturnStatement implements AbstractStatement {
