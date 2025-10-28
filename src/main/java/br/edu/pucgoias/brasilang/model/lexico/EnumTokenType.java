@@ -7,6 +7,7 @@ public enum EnumTokenType {
     SE("se"),
     SENAO("senao"),
     ENQUANTO("enquanto"),
+    REPITA("repita"),
     PARA("para"),
     IMPRIMA("imprima"),
     INT("inteiro"),
@@ -23,7 +24,9 @@ public enum EnumTokenType {
 
     private final String[] lexemes; // só para keywords
 
-    EnumTokenType(String... lexemes) { this.lexemes = lexemes; }
+    EnumTokenType(String... lexemes) {
+        this.lexemes = lexemes;
+    }
 
     private static final java.util.Map<String, EnumTokenType> BY_LEXEME = new java.util.HashMap<>();
     static {
@@ -37,12 +40,14 @@ public enum EnumTokenType {
     }
 
     /**
-     * Resolve o tipo do token a partir do lexema se ele for uma palavra-chave; caso contrário retorna null.
+     * Resolve o tipo do token a partir do lexema se ele for uma palavra-chave; caso
+     * contrário retorna null.
      */
     public static EnumTokenType resolve(String id) {
         return BY_LEXEME.get(id);
     }
 
-    public boolean isKeyword() { return lexemes != null && lexemes.length > 0; }
+    public boolean isKeyword() {
+        return lexemes != null && lexemes.length > 0;
+    }
 }
-

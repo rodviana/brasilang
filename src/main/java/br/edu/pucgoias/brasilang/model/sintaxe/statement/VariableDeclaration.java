@@ -4,13 +4,12 @@ import br.edu.pucgoias.brasilang.model.lexico.EnumTokenType;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.AbstractExpression;
 import br.edu.pucgoias.brasilang.model.translate.TranslationContext;
 
+public class VariableDeclaration implements AbstractStatement {
 
-public class VariableDeclaration implements AbstractStatement{
+        private String variableName;
+        private EnumTokenType tokenType;
+        private AbstractExpression initialization;
 
-	private String variableName;
-	private EnumTokenType tokenType;
-	private AbstractExpression initialization;
-	
         public VariableDeclaration(String variableName, EnumTokenType tokenType, AbstractExpression initialization) {
                 super();
                 this.variableName = variableName;
@@ -30,13 +29,13 @@ public class VariableDeclaration implements AbstractStatement{
                 ctx.getBuilder().appendLine(line);
         }
 
-@Override
-public String toString() {
-return "VariableDeclaration{\n" +
-"  variableName='" + variableName + "',\n" +
-"  tokenType=" + tokenType + ",\n" +
-"  initialization=" + initialization + "\n" +
-"}";
-}
+        @Override
+        public String toString() {
+                return "VariableDeclaration{\n" +
+                                "  variableName='" + variableName + "',\n" +
+                                "  tokenType=" + tokenType + ",\n" +
+                                "  initialization=" + initialization + "\n" +
+                                "}";
+        }
 
 }
