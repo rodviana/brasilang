@@ -17,7 +17,7 @@ public enum EnumTokenType {
 
     // demais tokens
     ID, INTLIT, FLOATLIT, STRINGLIT,
-    LPAR, RPAR, LBRACE, RBRACE, COLON, SEMI, COMMA,
+    LPAR, RPAR, LBRACE, RBRACE, LBRACK, RBRACK, COLON, SEMI, COMMA,
     ASSIGN, PLUS, MINUS, STAR, SLASH,
     LT, LE, GT, GE, EQ, NEQ,
     EOF;
