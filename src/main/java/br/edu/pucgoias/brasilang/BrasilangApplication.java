@@ -19,49 +19,57 @@ import jakarta.annotation.PostConstruct;
 @SpringBootApplication
 public class BrasilangApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(BrasilangApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(BrasilangApplication.class, args);
+  }
 
-	@Autowired
-	LexerService lexerService;
-	@Autowired
-	SintaxeService sintaxeService;
-	@Autowired
-	TranslateService translateService;
-	
-    @PostConstruct
-    void executar() {
-        String src = """
-                        inteiro g = 10;
-                        flutuante f = 1.5;
-                        inteiro i = 0;
-                        para (i < 3) {
-                          imprima(i);
-                          i = i + 1;
-                        }
-                        enquanto (g > 0) {
-                          se (g == 5) {
-                            imprima("metade");
-                          } senao {
-                            imprima(g);
-                          }
-                          g = g - 1;
-                        }
-                        imprima(f);
-                        """;
-        Lexer lexer = new Lexer(src);
-        List<Token> tokenList = lexerService.buildTokenList(lexer);
+  @Autowired
+  LexerService lexerService;
+  @Autowired
+  SintaxeService sintaxeService;
+  @Autowired
+  TranslateService translateService;
 
-        tokenList.forEach(token -> System.out.println(token.toString()));
-        Sintaxe sintaxe = new Sintaxe(tokenList);
-        List<AbstractStatement> statements = sintaxeService.buildProgramStatementList(sintaxe);
+  @PostConstruct
+  void executar() {
+    String src = """
+        // Teste do 'enquanto' com 'se/senao'
+        inteiro contador_while = 5;
+        imprima("--- Testando 'enquanto' e 'se/senao' ---");
 
-        statements.forEach(statement -> System.out.println(statement.toString()));
+        enquanto (contador_while > 0) {
+          se (contador_while == 3) {
+            imprima("O contador eh tres!");
+          } senao {
+            imprima(contador_while);
+          }
+          contador_while = contador_while - 1;
+        }
+        imprima("Fim do teste 'enquanto'.");
 
-        Program program = new Program(statements);
-        String cCode = translateService.generateCode(program);
-        System.out.println(cCode);
+        // Teste do 'repita...enquanto' (do-while)
+        inteiro contador_repita = 0;
+        imprima("--- Testando 'repita...enquanto' ---");
 
-    }
+        repita {
+          imprima(contador_repita);
+          contador_repita = contador_repita + 1;
+        }
+        enquanto (contador_repita < 3);
+        imprima("Fim do teste 'repita'.");
+        """;
+    Lexer lexer = new Lexer(src);
+    List<Token> tokenList = lexerService.buildTokenList(lexer);
+
+    tokenList.forEach(token -> System.out.println(token.toString()));
+    Sintaxe sintaxe = new Sintaxe(tokenList);
+    List<AbstractStatement> statements = sintaxeService.buildProgramStatementList(sintaxe);
+
+    statements.forEach(statement -> System.out.println(statement.toString()));
+
+    Program program = new Program(statements);
+    String cCode = translateService.generateCode(program);
+    System.out.println(cCode);
+
+  }
 }

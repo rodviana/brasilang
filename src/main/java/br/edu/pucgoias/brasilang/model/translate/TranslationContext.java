@@ -18,16 +18,29 @@ public class TranslationContext {
         this.builder = builder;
     }
 
-    public CodeBuilder getBuilder() { return builder; }
+    public CodeBuilder getBuilder() {
+        return builder;
+    }
 
-    public void addInclude(String include) { includes.add(include); }
-    public Set<String> getIncludes() { return includes; }
+    public void addInclude(String include) {
+        includes.add(include);
+    }
 
-    public void declareVariable(String name, String type) { variables.put(name, type); }
-    public Map<String, String> getVariables() { return variables; }
+    public Set<String> getIncludes() {
+        return includes;
+    }
+
+    public void declareVariable(String name, String type) {
+        variables.put(name, type);
+    }
+
+    public Map<String, String> getVariables() {
+        return variables;
+    }
 
     public String toCType(EnumTokenType type) {
-        if (type == null) return "int";
+        if (type == null)
+            return "int";
         return switch (type) {
             case INT -> "int";
             case FLOAT -> "float";
