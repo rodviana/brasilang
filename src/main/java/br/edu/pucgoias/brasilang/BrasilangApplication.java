@@ -59,6 +59,14 @@ public class BrasilangApplication {
         // Teste booleano
         inteiro teste = 1;
         se (teste == 1) {
+        
+        imprima("/n");
+        imprima("\n");
+        //teste booleano
+        inteiro teste = 1; 
+        se (teste e 0) {
+            imprima("deu falso");
+        } senao {
             imprima("deu verdadeiro");
         }
         """;
