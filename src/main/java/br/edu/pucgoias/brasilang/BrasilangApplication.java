@@ -45,6 +45,22 @@ public class BrasilangApplication {
         }
 
         imprima("Fim do teste de vetores.");
+
+        imprima("\n");
+
+        // Teste do 'repita'
+        inteiro contador_repita = 0;
+        repita {
+          imprima(contador_repita);
+          contador_repita = contador_repita + 1;
+        } enquanto (contador_repita < 3);
+        imprima("Fim do teste 'repita'.");
+
+        // Teste booleano
+        inteiro teste = 1;
+        se (teste == 1) {
+            imprima("deu verdadeiro");
+        }
         """;
     Lexer lexer = new Lexer(src);
     List<Token> tokenList = lexerService.buildTokenList(lexer);
