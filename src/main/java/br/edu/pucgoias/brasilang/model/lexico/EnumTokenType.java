@@ -14,6 +14,13 @@ public enum EnumTokenType {
     FLOAT("flutuante"),
     DOUBLE("duplo"),
     VOID("vazio"),
+    BOOL("booleano"),
+    TRUE("verdadeiro"),
+    FALSE("falso"),
+    AND("e"),
+    OR("ou"),
+    NOT("nao"),
+
 
     // demais tokens
     ID, INTLIT, FLOATLIT, STRINGLIT,

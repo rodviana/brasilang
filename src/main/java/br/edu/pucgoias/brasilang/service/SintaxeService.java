@@ -139,7 +139,7 @@ public class SintaxeService {
 
     // Entrada principal para análise de expressões
     private AbstractExpression parseExpression(Sintaxe sintaxe) {
-        return parseEquality(sintaxe);
+    return parseLogicalOr(sintaxe);
     }
 
     // igualdade (==, !=)
@@ -168,6 +168,47 @@ public class SintaxeService {
         }
         return expr;
     }
+
+    // lógica (&&, ||)
+    // private AbstractExpression parseLogic(Sintaxe sintaxe) {
+    //     AbstractExpression expr = parseEquality(sintaxe);
+    //     Token next = sintaxe.previewNextToken();
+    //     while (next != null && (next.type == EnumTokenType.AND || next.type == EnumTokenType.OR)) {
+    //         Token operator = sintaxe.advanceToNextToken();
+    //         AbstractExpression right = parseEquality(sintaxe);
+    //         expr = new BinaryOperation(operator.lexeme, expr, right);
+    //         next = sintaxe.previewNextToken();
+    //     }
+    //     return expr;
+    // }
+
+    // OR lógico
+    private AbstractExpression parseLogicalOr(Sintaxe sintaxe) {
+        AbstractExpression expr = parseLogicalAnd(sintaxe);
+        Token next = sintaxe.previewNextToken();
+        while (next != null && next.type == EnumTokenType.OR) {
+            Token operator = sintaxe.advanceToNextToken();
+            AbstractExpression right = parseLogicalAnd(sintaxe);
+            expr = new BinaryOperation(operator.lexeme, expr, right);
+            next = sintaxe.previewNextToken();
+        }
+        return expr;
+    }
+
+    // AND lógico
+    private AbstractExpression parseLogicalAnd(Sintaxe sintaxe) {
+        AbstractExpression expr = parseEquality(sintaxe);
+        Token next = sintaxe.previewNextToken();
+        while (next != null && next.type == EnumTokenType.AND) {
+            Token operator = sintaxe.advanceToNextToken();
+            AbstractExpression right = parseEquality(sintaxe);
+            expr = new BinaryOperation(operator.lexeme, expr, right);
+            next = sintaxe.previewNextToken();
+        }
+        return expr;
+    }
+
+
 
     // termos (+, -)
     private AbstractExpression parseTerm(Sintaxe sintaxe) {
@@ -198,11 +239,12 @@ public class SintaxeService {
     // unários (-, +)
     private AbstractExpression parseUnary(Sintaxe sintaxe) {
         Token next = sintaxe.previewNextToken();
-        if (next != null && (next.type == EnumTokenType.MINUS || next.type == EnumTokenType.PLUS)) {
+        if (next != null && (next.type == EnumTokenType.MINUS || next.type == EnumTokenType.PLUS || next.type == EnumTokenType.NOT)) {
             Token operator = sintaxe.advanceToNextToken();
             AbstractExpression right = parseUnary(sintaxe);
             return new UnaryOperation(operator.lexeme, right);
         }
+        
         return parsePrimary(sintaxe);
     }
 
@@ -219,6 +261,10 @@ public class SintaxeService {
                 return new Literal(Double.parseDouble(token.lexeme));
             case STRINGLIT:
                 return new Literal(token.lexeme);
+            case TRUE:
+                return new Literal(true);
+            case FALSE:
+                return new Literal(false);
             case ID:
                 return new Variable(token.lexeme);
             case LPAR:
@@ -227,7 +273,7 @@ public class SintaxeService {
                 return expr;
             default:
                 throw new RuntimeException("Expressão não suportada: " + token.type);
-        }
+}
     }
 
 }
