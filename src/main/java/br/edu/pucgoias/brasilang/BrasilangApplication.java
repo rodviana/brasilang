@@ -33,30 +33,32 @@ public class BrasilangApplication {
   @PostConstruct
   void executar() {
     String src = """
-        // Teste do 'enquanto' com 'se/senao'
-        inteiro contador_while = 5;
-        imprima("--- Testando 'enquanto' e 'se/senao' ---");
+        // Teste de Vetores (Arrays)
+        imprima("--- Testando Vetores ---");
+        inteiro meuVetor[5];
+        inteiro i = 0;
 
-        enquanto (contador_while > 0) {
-          se (contador_while == 3) {
-            imprima("O contador eh tres!");
-          } senao {
-            imprima(contador_while);
-          }
-          contador_while = contador_while - 1;
+        enquanto (i < 5) {
+          meuVetor[i] = i * 10;
+          imprima(meuVetor[i]);
+          i = i + 1;
         }
-        imprima("Fim do teste 'enquanto'.");
 
-        // Teste do 'repita...enquanto' (do-while)
+        imprima("Fim do teste de vetores.");
+
+        imprima("\n");
+
+        // Teste do 'repita'
         inteiro contador_repita = 0;
-        imprima("--- Testando 'repita...enquanto' ---");
-
         repita {
           imprima(contador_repita);
           contador_repita = contador_repita + 1;
-        }
-        enquanto (contador_repita < 3);
+        } enquanto (contador_repita < 3);
         imprima("Fim do teste 'repita'.");
+
+        // Teste booleano
+        inteiro teste = 1;
+        se (teste == 1) {
         
         imprima("/n");
         imprima("\n");

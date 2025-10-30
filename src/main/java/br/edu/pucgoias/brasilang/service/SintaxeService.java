@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import br.edu.pucgoias.brasilang.model.lexico.EnumTokenType;
 import br.edu.pucgoias.brasilang.model.lexico.Token;
 import br.edu.pucgoias.brasilang.model.sintaxe.Sintaxe;
+import br.edu.pucgoias.brasilang.model.sintaxe.expression.ArrayAccess;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.AbstractExpression;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.Literal;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.Variable;
@@ -56,50 +57,71 @@ public class SintaxeService {
             case ENQUANTO:
             case REPITA:
             case PARA:
+            case REPITA:
                 return parseRepetitionStruct(sintaxe, token);
             default:
                 throw new RuntimeException("Token inesperado: " + token.type);
         }
     }
 
-    // Parse declaração de variável: inteiro g = 10;
+    // Parse declaração de variável: inteiro g = 10; ou inteiro vetor[10];
     private VariableDeclaration parseVariableDeclaration(Sintaxe sintaxe, Token typeToken) {
         Token varName = sintaxe.advanceToNextToken(); // ID
-        Token assignToken = sintaxe.advanceToNextToken(); // ASSIGN
-        AbstractExpression expr = parseExpression(sintaxe);
-        Token semiToken = sintaxe.advanceToNextToken(); // SEMI
-        return new VariableDeclaration(varName.lexeme, typeToken.type, expr);
+        AbstractExpression size = null;
+        AbstractExpression initialization = null;
+
+        if (sintaxe.previewNextToken().type == EnumTokenType.LBRACK) {
+            sintaxe.advanceToNextToken(); // Consome LBRACK
+            size = parseExpression(sintaxe);
+            sintaxe.advanceToNextToken(); // Consome RBRACK
+        } else if (sintaxe.previewNextToken().type == EnumTokenType.ASSIGN) {
+            sintaxe.advanceToNextToken(); // Consome ASSIGN
+            initialization = parseExpression(sintaxe);
+        }
+
+        sintaxe.advanceToNextToken(); // Consome SEMI
+        return new VariableDeclaration(varName.lexeme, typeToken.type, size, initialization);
     }
 
-    // Parse atribuição: x = 5;
+    // Parse atribuição: x = 5; ou x[0] = 5;
     private Assign parseAssign(Sintaxe sintaxe, Token idToken) {
-        Token assignToken = sintaxe.advanceToNextToken(); // ASSIGN
+        AbstractExpression target;
+        if (sintaxe.previewNextToken().type == EnumTokenType.LBRACK) {
+            sintaxe.advanceToNextToken(); // Consome LBRACK
+            AbstractExpression index = parseExpression(sintaxe);
+            sintaxe.advanceToNextToken(); // Consome RBRACK
+            target = new ArrayAccess(idToken.lexeme, index);
+        } else {
+            target = new Variable(idToken.lexeme);
+        }
+
+        sintaxe.advanceToNextToken(); // Consome ASSIGN
         AbstractExpression expr = parseExpression(sintaxe);
-        Token semiToken = sintaxe.advanceToNextToken(); // SEMI
-        return new Assign(idToken.lexeme, expr);
+        sintaxe.advanceToNextToken(); // Consome SEMI
+        return new Assign(target, expr);
     }
 
     // Parse comando de impressão: imprima(expr);
     private Print parsePrint(Sintaxe sintaxe) {
-        Token lpar = sintaxe.advanceToNextToken(); // LPAR
+        sintaxe.advanceToNextToken(); // Consome LPAR
         AbstractExpression expr = parseExpression(sintaxe);
-        Token rpar = sintaxe.advanceToNextToken(); // RPAR
-        Token semiToken = sintaxe.advanceToNextToken(); // SEMI
+        sintaxe.advanceToNextToken(); // Consome RPAR
+        sintaxe.advanceToNextToken(); // Consome SEMI
         return new Print(expr);
     }
 
     // Parse estrutura condicional: se (...) { ... } senao { ... }
     private ConditionalStruct parseConditionalStruct(Sintaxe sintaxe) {
-        Token lpar = sintaxe.advanceToNextToken(); // LPAR
+        sintaxe.advanceToNextToken(); // Consome LPAR
         AbstractExpression condition = parseExpression(sintaxe);
-        Token rpar = sintaxe.advanceToNextToken(); // RPAR
-        Token lbrace = sintaxe.advanceToNextToken(); // LBRACE
+        sintaxe.advanceToNextToken(); // Consome RPAR
+        sintaxe.advanceToNextToken(); // Consome LBRACE
         List<AbstractStatement> thenBlock = buildBlock(sintaxe);
         List<AbstractStatement> elseBlock = null;
         Token next = sintaxe.previewNextToken();
         if (next != null && next.type == EnumTokenType.SENAO) {
-            Token senaoToken = sintaxe.advanceToNextToken(); // SENAO
-            Token elseLbrace = sintaxe.advanceToNextToken(); // LBRACE
+            sintaxe.advanceToNextToken(); // Consome SENAO
+            sintaxe.advanceToNextToken(); // Consome LBRACE
             elseBlock = buildBlock(sintaxe);
         }
         return new ConditionalStruct(condition, thenBlock, elseBlock);
@@ -109,19 +131,19 @@ public class SintaxeService {
     private RepetitionStruct parseRepetitionStruct(Sintaxe sintaxe, Token typeToken) {
         if (typeToken.type == EnumTokenType.REPITA) {
             // Estrutura: repita { ... } enquanto (condicao);
-            Token lbrace = sintaxe.advanceToNextToken(); // LBRACE
+            sintaxe.advanceToNextToken(); // Consome LBRACE
             List<AbstractStatement> body = buildBlock(sintaxe);
-            Token enquantoToken = sintaxe.advanceToNextToken(); // ENQUANTO
-            Token lpar = sintaxe.advanceToNextToken(); // LPAR
+            sintaxe.advanceToNextToken(); // Consome ENQUANTO
+            sintaxe.advanceToNextToken(); // Consome LPAR
             AbstractExpression condition = parseExpression(sintaxe);
-            Token rpar = sintaxe.advanceToNextToken(); // RPAR
-            Token semiToken = sintaxe.advanceToNextToken(); // SEMI
+            sintaxe.advanceToNextToken(); // Consome RPAR
+            sintaxe.advanceToNextToken(); // Consome SEMI
             return new RepetitionStruct(typeToken.type, condition, body);
         } else { // ENQUANTO ou PARA
-            Token lpar = sintaxe.advanceToNextToken(); // LPAR
+            sintaxe.advanceToNextToken(); // Consome LPAR
             AbstractExpression condition = parseExpression(sintaxe);
-            Token rpar = sintaxe.advanceToNextToken(); // RPAR
-            Token lbrace = sintaxe.advanceToNextToken(); // LBRACE
+            sintaxe.advanceToNextToken(); // Consome RPAR
+            sintaxe.advanceToNextToken(); // Consome LBRACE
             List<AbstractStatement> body = buildBlock(sintaxe);
             return new RepetitionStruct(typeToken.type, condition, body);
         }
@@ -133,7 +155,7 @@ public class SintaxeService {
         while (sintaxe.previewNextToken() != null && sintaxe.previewNextToken().type != EnumTokenType.RBRACE) {
             block.add(getNextStatement(sintaxe));
         }
-        Token rbrace = sintaxe.advanceToNextToken(); // RBRACE
+        sintaxe.advanceToNextToken(); // Consome RBRACE
         return block;
     }
 
@@ -266,10 +288,17 @@ public class SintaxeService {
             case FALSE:
                 return new Literal(false);
             case ID:
+                // Pode ser uma variável simples ou um acesso a vetor
+                if (sintaxe.previewNextToken() != null && sintaxe.previewNextToken().type == EnumTokenType.LBRACK) {
+                    sintaxe.advanceToNextToken(); // Consome LBRACK
+                    AbstractExpression index = parseExpression(sintaxe);
+                    sintaxe.advanceToNextToken(); // Consome RBRACK
+                    return new ArrayAccess(token.lexeme, index);
+                }
                 return new Variable(token.lexeme);
             case LPAR:
                 AbstractExpression expr = parseExpression(sintaxe);
-                Token rpar = sintaxe.advanceToNextToken(); // RPAR
+                sintaxe.advanceToNextToken(); // Consome RPAR
                 return expr;
             default:
                 throw new RuntimeException("Expressão não suportada: " + token.type);
