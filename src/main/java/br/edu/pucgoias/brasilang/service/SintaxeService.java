@@ -57,6 +57,7 @@ public class SintaxeService {
             case ENQUANTO:
             case REPITA:
             case PARA:
+            case REPITA:
                 return parseRepetitionStruct(sintaxe, token);
             default:
                 throw new RuntimeException("Token inesperado: " + token.type);
