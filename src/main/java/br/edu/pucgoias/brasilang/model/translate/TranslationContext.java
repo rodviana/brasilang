@@ -46,7 +46,9 @@ public class TranslationContext {
             case FLOAT -> "float";
             case DOUBLE -> "double";
             case VOID -> "void";
+            case BOOL -> "int"; 
             default -> "int";
         };
     }
+
 }
