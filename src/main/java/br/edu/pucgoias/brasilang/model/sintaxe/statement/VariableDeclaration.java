@@ -1,22 +1,24 @@
 package br.edu.pucgoias.brasilang.model.sintaxe.statement;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import br.edu.pucgoias.brasilang.model.lexico.EnumTokenType;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.AbstractExpression;
 import br.edu.pucgoias.brasilang.model.translate.TranslationContext;
 
 public class VariableDeclaration implements AbstractStatement {
+        private final String variableName;
+        private final EnumTokenType tokenType;
+        private final List<AbstractExpression> dimensions; // Para declaracao de vetores/matrizes
+        private final AbstractExpression initialization;
 
-        private String variableName;
-        private EnumTokenType tokenType;
-        private AbstractExpression size; // Para declaracao de vetores
-        private AbstractExpression initialization;
-
-        public VariableDeclaration(String variableName, EnumTokenType tokenType, AbstractExpression size,
+        public VariableDeclaration(String variableName, EnumTokenType tokenType, List<AbstractExpression> dimensions,
                         AbstractExpression initialization) {
                 super();
                 this.variableName = variableName;
                 this.tokenType = tokenType;
-                this.size = size;
+                this.dimensions = dimensions;
                 this.initialization = initialization;
         }
 
@@ -26,12 +28,14 @@ public class VariableDeclaration implements AbstractStatement {
                 ctx.declareVariable(variableName, cType); // Mantem o tipo base para consulta
                 StringBuilder lineBuilder = new StringBuilder();
                 lineBuilder.append(cType).append(" ").append(variableName);
-                if (size != null) {
-                        lineBuilder.append("[").append(size.translate(ctx)).append("]");
+                if (dimensions != null && !dimensions.isEmpty()) {
+                        for (AbstractExpression dim : dimensions) {
+                                lineBuilder.append("[").append(dim.translate(ctx)).append("]");
+                        }
                 }
                 String line = lineBuilder.toString();
-                // A inicializacao de vetores inteiros nao eh suportada nesta implementacao
-                if (initialization != null && size == null) {
+                // A inicializacao de vetores/matrizes nao eh suportada nesta implementacao
+                if (initialization != null && (dimensions == null || dimensions.isEmpty())) {
                         line += " = " + initialization.translate(ctx);
                 }
                 line += ";";
@@ -42,9 +46,9 @@ public class VariableDeclaration implements AbstractStatement {
         public String toString() {
                 return "VariableDeclaration{\n" +
                                 "  variableName='" + variableName + "',\n" +
-                                "  tokenType=" + tokenType + ",\n" + // Corrigido
-                                "  size=" + size + ",\n" +
-                                "  initialization=" + initialization + "\n" + // Corrigido
+                                "  tokenType=" + tokenType + ",\n" +
+                                "  dimensions=" + dimensions + ",\n" +
+                                "  initialization=" + initialization + "\n" +
                                 "}";
         }
 

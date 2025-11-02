@@ -47,6 +47,8 @@ public class SintaxeService {
             case INT:
             case FLOAT:
             case DOUBLE:
+            case BOOL:
+            case CHAR:
                 return parseVariableDeclaration(sintaxe, token);
             case ID:
                 return parseAssign(sintaxe, token);
@@ -55,7 +57,6 @@ public class SintaxeService {
             case IMPRIMA:
                 return parsePrint(sintaxe);
             case ENQUANTO:
-            case REPITA:
             case PARA:
             case REPITA:
                 return parseRepetitionStruct(sintaxe, token);
@@ -67,30 +68,36 @@ public class SintaxeService {
     // Parse declaração de variável: inteiro g = 10; ou inteiro vetor[10];
     private VariableDeclaration parseVariableDeclaration(Sintaxe sintaxe, Token typeToken) {
         Token varName = sintaxe.advanceToNextToken(); // ID
-        AbstractExpression size = null;
+        List<AbstractExpression> dimensions = null;
         AbstractExpression initialization = null;
 
         if (sintaxe.previewNextToken().type == EnumTokenType.LBRACK) {
-            sintaxe.advanceToNextToken(); // Consome LBRACK
-            size = parseExpression(sintaxe);
-            sintaxe.advanceToNextToken(); // Consome RBRACK
+            dimensions = new ArrayList<>();
+            while (sintaxe.previewNextToken().type == EnumTokenType.LBRACK) {
+                sintaxe.advanceToNextToken(); // Consome LBRACK
+                dimensions.add(parseExpression(sintaxe));
+                sintaxe.advanceToNextToken(); // Consome RBRACK
+            }
         } else if (sintaxe.previewNextToken().type == EnumTokenType.ASSIGN) {
             sintaxe.advanceToNextToken(); // Consome ASSIGN
             initialization = parseExpression(sintaxe);
         }
 
         sintaxe.advanceToNextToken(); // Consome SEMI
-        return new VariableDeclaration(varName.lexeme, typeToken.type, size, initialization);
+        return new VariableDeclaration(varName.lexeme, typeToken.type, dimensions, initialization);
     }
 
     // Parse atribuição: x = 5; ou x[0] = 5;
     private Assign parseAssign(Sintaxe sintaxe, Token idToken) {
         AbstractExpression target;
         if (sintaxe.previewNextToken().type == EnumTokenType.LBRACK) {
-            sintaxe.advanceToNextToken(); // Consome LBRACK
-            AbstractExpression index = parseExpression(sintaxe);
-            sintaxe.advanceToNextToken(); // Consome RBRACK
-            target = new ArrayAccess(idToken.lexeme, index);
+            List<AbstractExpression> indices = new ArrayList<>();
+            while (sintaxe.previewNextToken().type == EnumTokenType.LBRACK) {
+                sintaxe.advanceToNextToken(); // Consome LBRACK
+                indices.add(parseExpression(sintaxe));
+                sintaxe.advanceToNextToken(); // Consome RBRACK
+            }
+            target = new ArrayAccess(idToken.lexeme, indices);
         } else {
             target = new Variable(idToken.lexeme);
         }
@@ -161,7 +168,7 @@ public class SintaxeService {
 
     // Entrada principal para análise de expressões
     private AbstractExpression parseExpression(Sintaxe sintaxe) {
-    return parseLogicalOr(sintaxe);
+        return parseLogicalOr(sintaxe);
     }
 
     // igualdade (==, !=)
@@ -193,15 +200,16 @@ public class SintaxeService {
 
     // lógica (&&, ||)
     // private AbstractExpression parseLogic(Sintaxe sintaxe) {
-    //     AbstractExpression expr = parseEquality(sintaxe);
-    //     Token next = sintaxe.previewNextToken();
-    //     while (next != null && (next.type == EnumTokenType.AND || next.type == EnumTokenType.OR)) {
-    //         Token operator = sintaxe.advanceToNextToken();
-    //         AbstractExpression right = parseEquality(sintaxe);
-    //         expr = new BinaryOperation(operator.lexeme, expr, right);
-    //         next = sintaxe.previewNextToken();
-    //     }
-    //     return expr;
+    // AbstractExpression expr = parseEquality(sintaxe);
+    // Token next = sintaxe.previewNextToken();
+    // while (next != null && (next.type == EnumTokenType.AND || next.type ==
+    // EnumTokenType.OR)) {
+    // Token operator = sintaxe.advanceToNextToken();
+    // AbstractExpression right = parseEquality(sintaxe);
+    // expr = new BinaryOperation(operator.lexeme, expr, right);
+    // next = sintaxe.previewNextToken();
+    // }
+    // return expr;
     // }
 
     // OR lógico
@@ -229,8 +237,6 @@ public class SintaxeService {
         }
         return expr;
     }
-
-
 
     // termos (+, -)
     private AbstractExpression parseTerm(Sintaxe sintaxe) {
@@ -261,12 +267,13 @@ public class SintaxeService {
     // unários (-, +)
     private AbstractExpression parseUnary(Sintaxe sintaxe) {
         Token next = sintaxe.previewNextToken();
-        if (next != null && (next.type == EnumTokenType.MINUS || next.type == EnumTokenType.PLUS || next.type == EnumTokenType.NOT)) {
+        if (next != null && (next.type == EnumTokenType.MINUS || next.type == EnumTokenType.PLUS
+                || next.type == EnumTokenType.NOT)) {
             Token operator = sintaxe.advanceToNextToken();
             AbstractExpression right = parseUnary(sintaxe);
             return new UnaryOperation(operator.lexeme, right);
         }
-        
+
         return parsePrimary(sintaxe);
     }
 
@@ -281,6 +288,8 @@ public class SintaxeService {
                 return new Literal(Integer.parseInt(token.lexeme));
             case FLOATLIT:
                 return new Literal(Double.parseDouble(token.lexeme));
+            case CHARLIT:
+                return new Literal(token.lexeme.charAt(0)); // Armazena como char
             case STRINGLIT:
                 return new Literal(token.lexeme);
             case TRUE:
@@ -290,10 +299,14 @@ public class SintaxeService {
             case ID:
                 // Pode ser uma variável simples ou um acesso a vetor
                 if (sintaxe.previewNextToken() != null && sintaxe.previewNextToken().type == EnumTokenType.LBRACK) {
-                    sintaxe.advanceToNextToken(); // Consome LBRACK
-                    AbstractExpression index = parseExpression(sintaxe);
-                    sintaxe.advanceToNextToken(); // Consome RBRACK
-                    return new ArrayAccess(token.lexeme, index);
+                    List<AbstractExpression> indices = new ArrayList<>();
+                    while (sintaxe.previewNextToken() != null
+                            && sintaxe.previewNextToken().type == EnumTokenType.LBRACK) {
+                        sintaxe.advanceToNextToken(); // Consome LBRACK
+                        indices.add(parseExpression(sintaxe));
+                        sintaxe.advanceToNextToken(); // Consome RBRACK
+                    }
+                    return new ArrayAccess(token.lexeme, indices);
                 }
                 return new Variable(token.lexeme);
             case LPAR:
@@ -302,7 +315,7 @@ public class SintaxeService {
                 return expr;
             default:
                 throw new RuntimeException("Expressão não suportada: " + token.type);
-}
+        }
     }
 
 }

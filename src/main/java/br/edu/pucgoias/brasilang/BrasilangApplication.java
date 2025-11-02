@@ -33,42 +33,35 @@ public class BrasilangApplication {
   @PostConstruct
   void executar() {
     String src = """
-        // Teste de Vetores (Arrays)
-        imprima("--- Testando Vetores ---");
-        inteiro meuVetor[5];
+        // Teste de Matrizes
+        imprima("--- Testando Matrizes ---");
+        inteiro minhaMatriz[2][3];
         inteiro i = 0;
-
-        enquanto (i < 5) {
-          meuVetor[i] = i * 10;
-          imprima(meuVetor[i]);
-          i = i + 1;
+        inteiro j = 0;
+        enquanto (i < 2) {
+            j = 0;
+            enquanto (j < 3) {
+                minhaMatriz[i][j] = i * 10 + j;
+                imprima(minhaMatriz[i][j]);
+                j = j + 1;
+            }
+            i = i + 1;
         }
+        imprima("Fim do teste de matrizes.");
+        imprima("\\n");
 
-        imprima("Fim do teste de vetores.");
-
-        imprima("\n");
-
-        // Teste do 'repita'
-        inteiro contador_repita = 0;
-        repita {
-          imprima(contador_repita);
-          contador_repita = contador_repita + 1;
-        } enquanto (contador_repita < 3);
-        imprima("Fim do teste 'repita'.");
-
-        // Teste booleano
-        inteiro teste = 1;
-        se (teste == 1) {
-        
-        imprima("/n");
-        imprima("\n");
-        //teste booleano
-        inteiro teste = 1; 
-        se (teste e 0) {
-            imprima("deu falso");
+        // Teste de Booleanos e Strings
+        imprima("--- Testando Booleanos e Strings ---");
+        booleano ok = verdadeiro;
+        se (ok e (1 < 2)) {
+            imprima("Teste booleano: SUCESSO");
         } senao {
-            imprima("deu verdadeiro");
+            imprima("Teste booleano: FALHOU");
         }
+
+        caractere letra = 'B';
+        imprima(letra);
+        imprima("\\nFim dos testes.");
         """;
     Lexer lexer = new Lexer(src);
     List<Token> tokenList = lexerService.buildTokenList(lexer);
