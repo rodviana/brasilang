@@ -61,6 +61,9 @@ public class BrasilangApplication {
 
         caractere letra = 'B';
         imprima(letra);
+
+        string saudacao = "Ola, Brasilang!";
+        imprima(saudacao);
         imprima("\\nFim dos testes.");
         """;
     Lexer lexer = new Lexer(src);

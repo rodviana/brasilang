@@ -45,6 +45,8 @@ public class Print implements AbstractStatement {
                 format = "%f";
             } else if ("char".equals(type)) {
                 format = "%c";
+            } else if ("char*".equals(type)) {
+                format = "%s";
             }
         }
         ctx.getBuilder().appendLine("printf(\"" + format + "\\n\", " + exprCode + ");");

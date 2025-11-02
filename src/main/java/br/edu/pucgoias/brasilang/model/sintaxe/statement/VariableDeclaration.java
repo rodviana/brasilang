@@ -36,7 +36,12 @@ public class VariableDeclaration implements AbstractStatement {
                 String line = lineBuilder.toString();
                 // A inicializacao de vetores/matrizes nao eh suportada nesta implementacao
                 if (initialization != null && (dimensions == null || dimensions.isEmpty())) {
-                        line += " = " + initialization.translate(ctx);
+                        String initValue = initialization.translate(ctx);
+                        // Adiciona aspas simples para literais de char na declaração
+                        if (tokenType == EnumTokenType.CHAR && initValue.length() == 1) {
+                                initValue = "'" + initValue + "'";
+                        }
+                        line += " = " + initValue;
                 }
                 line += ";";
                 ctx.getBuilder().appendLine(line);

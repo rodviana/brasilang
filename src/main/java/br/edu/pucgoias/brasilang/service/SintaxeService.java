@@ -49,6 +49,7 @@ public class SintaxeService {
             case DOUBLE:
             case BOOL:
             case CHAR:
+            case STRING:
                 return parseVariableDeclaration(sintaxe, token);
             case ID:
                 return parseAssign(sintaxe, token);
@@ -289,7 +290,11 @@ public class SintaxeService {
             case FLOATLIT:
                 return new Literal(Double.parseDouble(token.lexeme));
             case CHARLIT:
-                return new Literal(token.lexeme.charAt(0)); // Armazena como char
+                if (token.lexeme.startsWith("\\")) {
+                    // Para sequências de escape como \n, \t, etc.
+                    return new Literal(token.lexeme);
+                }
+                return new Literal(token.lexeme.charAt(0));
             case STRINGLIT:
                 return new Literal(token.lexeme);
             case TRUE:

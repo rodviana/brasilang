@@ -14,6 +14,7 @@ public enum EnumTokenType {
     FLOAT("flutuante"),
     DOUBLE("duplo"),
     CHAR("caractere"),
+    STRING("string"),
     VOID("vazio"),
     BOOL("booleano"),
     TRUE("verdadeiro"),

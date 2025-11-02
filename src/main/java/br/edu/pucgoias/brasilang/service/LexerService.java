@@ -330,7 +330,7 @@ public final class LexerService {
                 throw error("Unterminated character literal", startLine, startCol);
             char esc = preVisualizeNextCharacter(l, 0);
             consumeCharacters(l, 1);
-            literal = "\\" + esc; // Keep it as a string for C translation
+            literal = "\\" + esc;
         } else {
             consumeCharacters(l, 1);
             literal = String.valueOf(ch);

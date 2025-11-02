@@ -51,6 +51,7 @@ public class TranslationContext {
                 yield "bool";
             }
             case CHAR -> "char";
+            case STRING -> "char*";
             default -> throw new IllegalArgumentException("Tipo de token não mapeado para C: " + type);
         };
     }
