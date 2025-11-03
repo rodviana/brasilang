@@ -1,6 +1,7 @@
 package br.edu.pucgoias.brasilang.model.sintaxe.statement;
 
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.AbstractExpression;
+import br.edu.pucgoias.brasilang.model.sintaxe.expression.ArrayAccess;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.Literal;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.Variable;
 import br.edu.pucgoias.brasilang.model.translate.TranslationContext;
@@ -28,11 +29,24 @@ public class Print implements AbstractStatement {
                 format = "%s";
             } else if (val instanceof Float || val instanceof Double) {
                 format = "%f";
+            } else if (val instanceof Character) {
+                format = "%c";
             }
-        } else if (expression instanceof Variable var) {
-            String type = ctx.getVariables().get(var.getName());
+        } else {
+            String varName = null;
+            if (expression instanceof Variable var) {
+                varName = var.getName();
+            } else if (expression instanceof ArrayAccess arr) {
+                varName = arr.getVariableName();
+            }
+
+            String type = ctx.getVariables().get(varName);
             if ("float".equals(type) || "double".equals(type)) {
                 format = "%f";
+            } else if ("char".equals(type)) {
+                format = "%c";
+            } else if ("char*".equals(type)) {
+                format = "%s";
             }
         }
         ctx.getBuilder().appendLine("printf(\"" + format + "\\n\", " + exprCode + ");");
@@ -42,6 +56,6 @@ public class Print implements AbstractStatement {
     public String toString() {
         return "Print{\n" +
                 "  expression=" + expression + "\n" +
-                "}"; 
+                "}";
     }
 }

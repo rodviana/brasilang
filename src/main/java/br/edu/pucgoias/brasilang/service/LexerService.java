@@ -45,6 +45,10 @@ public final class LexerService {
         if (t != null)
             return t;
 
+        t = tryReadCharLiteral(l, startLine, startCol);
+        if (t != null)
+            return t;
+
         t = tryReadNumber(l, startLine, startCol);
         if (t != null)
             return t;
@@ -307,6 +311,38 @@ public final class LexerService {
         }
 
         throw error("Unterminated string literal", startLine, startCol);
+    }
+
+    private Token tryReadCharLiteral(Lexer l, int startLine, int startCol) {
+        if (preVisualizeNextCharacter(l, 0) != '\'')
+            return null;
+
+        consumeCharacters(l, 1); // consume opening '
+        if (isEndOfSource(l))
+            throw error("Unterminated character literal", startLine, startCol);
+
+        char ch = preVisualizeNextCharacter(l, 0);
+        String literal;
+
+        if (ch == '\\') { // escape sequence
+            consumeCharacters(l, 1);
+            if (isEndOfSource(l))
+                throw error("Unterminated character literal", startLine, startCol);
+            char esc = preVisualizeNextCharacter(l, 0);
+            consumeCharacters(l, 1);
+            literal = "\\" + esc;
+        } else {
+            consumeCharacters(l, 1);
+            literal = String.valueOf(ch);
+        }
+
+        if (isEndOfSource(l) || preVisualizeNextCharacter(l, 0) != '\'') {
+            throw error("Unterminated character literal, expected a closing '", startLine, startCol);
+        }
+
+        consumeCharacters(l, 1); // consume closing '
+
+        return t(EnumTokenType.CHARLIT, literal, startLine, startCol);
     }
 
     private static Token t(EnumTokenType tt, String lex, int l, int c) {

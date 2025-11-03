@@ -1,30 +1,40 @@
 package br.edu.pucgoias.brasilang.model.sintaxe.expression;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import br.edu.pucgoias.brasilang.model.translate.TranslationContext;
 
 /**
- * Represents an array access expression in the AST, e.g., `myArray[index]`.
+ * Representa um acesso a um elemento de um vetor ou matriz. Ex: `meuVetor[i]`
+ * ou `minhaMatriz[i][j]`
  */
 public class ArrayAccess implements AbstractExpression {
 
     private final String variableName;
-    private final AbstractExpression indexExpression;
+    private final List<AbstractExpression> indices;
 
-    public ArrayAccess(String variableName, AbstractExpression indexExpression) {
+    public ArrayAccess(String variableName, List<AbstractExpression> indices) {
         this.variableName = variableName;
-        this.indexExpression = indexExpression;
+        this.indices = indices;
+    }
+
+    public String getVariableName() {
+        return variableName;
     }
 
     @Override
     public String translate(TranslationContext ctx) {
-        return variableName + "[" + indexExpression.translate(ctx) + "]";
+        StringBuilder access = new StringBuilder(variableName);
+        for (AbstractExpression idx : indices) {
+            access.append("[").append(idx.translate(ctx)).append("]");
+        }
+        return access.toString();
     }
 
     @Override
     public String toString() {
-        return "ArrayAccess{\n" +
-                "  variableName='" + variableName + "',\n" +
-                "  indexExpression=" + indexExpression + "\n" +
-                "}";
+        String indicesStr = indices.stream().map(Object::toString).collect(Collectors.joining("]["));
+        return "ArrayAccess{variableName='" + variableName + "', indices=[" + indicesStr + "]}";
     }
 }
