@@ -39,9 +39,9 @@ public class BrasilangApplication {
   @PostConstruct
   void executar() {
     String src = """
-        // Exemplo abrangente: tipos, arrays, condicionais, laços, funções, casts e ERROS LÉXICOS
+        // Exemplo abrangente: demonstra tipos, arrays, funções, casts e ERROS
 
-        imprima("=== Exemplo: recursos e demonstração de erros léxicos ===");
+        imprima("=== Programa: recursos e demonstração de erros ===");
 
         // Tipos básicos
         inteiro a = 10;
@@ -110,25 +110,68 @@ public class BrasilangApplication {
         imprima("Cast duplo para inteiro:");
         imprima(valor_convertido);
 
-        // === EXEMPLOS DE ERROS LÉXICOS (comentados para não quebrar compilação) ===
-        // imprima("=== Exemplos de ERROS LÉXICOS (descomente para testar) ===");
+        imprima("=== Fim do exemplo principal ===");
 
-        // ERRO 1: String literal não terminada
-        // string nao_terminada = "Ola sem fechar;
+        // === EXEMPLOS DE ERROS AO FINAL (descomente um por vez para testar) ===
 
-        // ERRO 2: Character literal não terminado
-        // caractere char_invalido = 'A;
+        // ERRO LÉXICO 1: String literal não terminada
+        // string nao_fechada = "Ola sem fechar;
 
-        // ERRO 3: Caractere inválido não reconhecido pelo lexer
-        // inteiro y = 10 @ 5;
+        // ERRO LÉXICO 2: Character literal não terminado
+        // caractere char_aberto = 'A;
 
-        // ERRO 4: Outro caractere especial inválido
-        // inteiro z = 5 $ 3;
+        // ERRO LÉXICO 3: Caractere inválido não reconhecido
+        // inteiro teste = 10 @ 5;
 
-        // ERRO 5: Comentário de bloco não fechado
+        // ERRO LÉXICO 4: Comentário de bloco não fechado
         // /* Este comentario nao fecha
+        // inteiro x = 5;
 
-        imprima("=== Fim do exemplo ===");
+        // ERRO SINTÁTICO 1: Falta de ponto e vírgula
+        // inteiro sem_semi = 10
+
+        // ERRO SINTÁTICO 2: Parêntese não fechado
+        // se (a > 5 {
+        //     imprima(a);
+        // }
+
+        // ERRO SINTÁTICO 3: Chave não fechada
+        // enquanto (i < 10) {
+        //     i = i + 1;
+
+        // ERRO SINTÁTICO 4: Falta de ')' em chamada de função
+        // inteiro resultado2 = fatorial(5;
+
+        // ERRO SINTÁTICO 5: Falta de '(' após 'imprima'
+        // imprima "erro";
+
+        // ERRO SINTÁTICO 6: Falta de ']' no acesso a array
+        // inteiro elem = arr[0;
+
+        // ERRO SINTÁTICO 7: Token inesperado
+        // funcao inteiro minhaFuncao( ) {
+        //     retorne
+        // }
+
+        // ERRO SEMÂNTICO 1: Variável não declarada
+        // imprima(variavel_inexistente);
+
+        // ERRO SEMÂNTICO 2: Função não declarada
+        // inteiro res = funcao_desconhecida(10);
+
+        // ERRO SEMÂNTICO 3: Redeclaração de variável
+        // inteiro a = 100;
+
+        // ERRO SEMÂNTICO 4: Redeclaração de função
+        // funcao inteiro fatorial(inteiro n) {
+        //     retorne n * 2;
+        // }
+
+        // ERRO SEMÂNTICO 5: Uso de variável em escopo inválido (após bloco se)
+        // se (verdadeiro) {
+        //     inteiro local = 50;
+        // }
+        // imprima(local);
         """;
     try {
       Lexer lexer = new Lexer(src);
