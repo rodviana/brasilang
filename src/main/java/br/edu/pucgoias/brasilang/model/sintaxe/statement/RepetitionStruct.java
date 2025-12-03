@@ -19,6 +19,14 @@ public class RepetitionStruct implements AbstractStatement {
                 this.loopBody = loopBody;
         }
 
+        public AbstractExpression getFlag() {
+                return flag;
+        }
+
+        public List<AbstractStatement> getLoopBody() {
+                return loopBody;
+        }
+
         @Override
         public void translate(TranslationContext ctx) {
                 switch (type) {

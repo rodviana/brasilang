@@ -14,6 +14,10 @@ import br.edu.pucgoias.brasilang.model.sintaxe.statement.Program;
 import br.edu.pucgoias.brasilang.service.LexerService;
 import br.edu.pucgoias.brasilang.service.SintaxeService;
 import br.edu.pucgoias.brasilang.service.TranslateService;
+import br.edu.pucgoias.brasilang.service.SemanticAnalyzer;
+import br.edu.pucgoias.brasilang.exception.LexicalException;
+import br.edu.pucgoias.brasilang.exception.SyntaxException;
+import br.edu.pucgoias.brasilang.exception.SemanticException;
 import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication
@@ -29,13 +33,15 @@ public class BrasilangApplication {
   SintaxeService sintaxeService;
   @Autowired
   TranslateService translateService;
+  @Autowired
+  SemanticAnalyzer semanticAnalyzer;
 
   @PostConstruct
   void executar() {
     String src = """
-        // Exemplo abrangente: demonstra tipos, arrays, condicionais, laços, funções, chamadas recursivas e casts
+        // Exemplo abrangente: tipos, arrays, condicionais, laços, funções, casts e ERROS LÉXICOS
 
-        imprima("=== Exemplo: recursos principais, fatorial recursivo e casts ===");
+        imprima("=== Exemplo: recursos e demonstração de erros léxicos ===");
 
         // Tipos básicos
         inteiro a = 10;
@@ -51,7 +57,7 @@ public class BrasilangApplication {
         imprima(f);
         imprima(c);
 
-        // Função recursiva para calcular fatorial de n
+        // Função recursiva
         funcao inteiro fatorial(inteiro n) {
             se (n <= 1) {
                 retorne 1;
@@ -60,7 +66,6 @@ public class BrasilangApplication {
             }
         }
 
-        // Usa a função fatorial para calcular fatorial de 5
         inteiro n = 5;
         inteiro resultado = fatorial(n);
         imprima("Fatorial de 5:");
@@ -75,14 +80,7 @@ public class BrasilangApplication {
             i = i + 1;
         }
 
-        // Condicional usando operadores lógicos
-        se (resultado > 100 e flag) {
-            imprima("Resultado grande e flag verdadeiro");
-        } senao {
-            imprima("Resultado pequeno ou flag falso");
-        }
-
-        // Demonstração de chamada aninhada
+        // Função auxiliar
         funcao inteiro adiciona(inteiro x, inteiro y) {
             retorne x + y;
         }
@@ -93,43 +91,75 @@ public class BrasilangApplication {
         // === Exemplos de CAST ===
         imprima("=== Exemplos de Casts ===");
 
-        // Cast de flutuante para inteiro
         flutuante num_flutuante = 3.99;
         inteiro num_inteiro = (inteiro) num_flutuante;
         imprima("Cast flutuante para inteiro:");
         imprima(num_inteiro);
 
-        // Cast de inteiro para flutuante
         inteiro x = 42;
         flutuante x_float = (flutuante) x;
         imprima("Cast inteiro para flutuante:");
         imprima(x_float);
 
-        // Cast em expressão aritmética
         inteiro resultado_cast = (inteiro) (2.7 + 3.5);
         imprima("Cast de soma em expressão:");
         imprima(resultado_cast);
 
-        // Cast em chamada de função
         duplo valor_duplo = 5.999;
         inteiro valor_convertido = (inteiro) valor_duplo;
         imprima("Cast duplo para inteiro:");
         imprima(valor_convertido);
 
+        // === EXEMPLOS DE ERROS LÉXICOS (comentados para não quebrar compilação) ===
+        // imprima("=== Exemplos de ERROS LÉXICOS (descomente para testar) ===");
+
+        // ERRO 1: String literal não terminada
+        // string nao_terminada = "Ola sem fechar;
+
+        // ERRO 2: Character literal não terminado
+        // caractere char_invalido = 'A;
+
+        // ERRO 3: Caractere inválido não reconhecido pelo lexer
+        // inteiro y = 10 @ 5;
+
+        // ERRO 4: Outro caractere especial inválido
+        // inteiro z = 5 $ 3;
+
+        // ERRO 5: Comentário de bloco não fechado
+        // /* Este comentario nao fecha
+
         imprima("=== Fim do exemplo ===");
         """;
-    Lexer lexer = new Lexer(src);
-    List<Token> tokenList = lexerService.buildTokenList(lexer);
+    try {
+      Lexer lexer = new Lexer(src);
+      List<Token> tokenList = lexerService.buildTokenList(lexer);
 
-    tokenList.forEach(token -> System.out.println(token.toString()));
-    Sintaxe sintaxe = new Sintaxe(tokenList);
-    List<AbstractStatement> statements = sintaxeService.buildProgramStatementList(sintaxe);
+      tokenList.forEach(token -> System.out.println(token.toString()));
+      Sintaxe sintaxe = new Sintaxe(tokenList);
+      List<AbstractStatement> statements = sintaxeService.buildProgramStatementList(sintaxe);
 
-    statements.forEach(statement -> System.out.println(statement.toString()));
+      statements.forEach(statement -> System.out.println(statement.toString()));
 
-    Program program = new Program(statements);
-    String cCode = translateService.generateCode(program);
-    System.out.println(cCode);
-
+      Program program = new Program(statements);
+      
+      // Análise semântica
+      semanticAnalyzer.analyze(program);
+      System.out.println("Análise semântica: OK");
+      
+      String cCode = translateService.generateCode(program);
+      System.out.println(cCode);
+    } catch (LexicalException e) {
+      System.err.println("Erro léxico encontrado: " + e.getMessage());
+      e.printStackTrace();
+    } catch (SyntaxException e) {
+      System.err.println("Erro sintático encontrado: " + e.getMessage());
+      e.printStackTrace();
+    } catch (SemanticException e) {
+      System.err.println("Erro semântico encontrado: " + e.getMessage());
+      e.printStackTrace();
+    } catch (Exception e) {
+      System.err.println("Erro durante compilação: " + e.getMessage());
+      e.printStackTrace();
+    }
   }
 }

@@ -22,6 +22,14 @@ public class VariableDeclaration implements AbstractStatement {
                 this.initialization = initialization;
         }
 
+        public String getVariableName() {
+                return variableName;
+        }
+
+        public EnumTokenType getTokenType() {
+                return tokenType;
+        }
+
         @Override
         public void translate(TranslationContext ctx) {
                 String cType = ctx.toCType(tokenType);

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import br.edu.pucgoias.brasilang.model.lexico.EnumTokenType;
 import br.edu.pucgoias.brasilang.model.lexico.Lexer;
 import br.edu.pucgoias.brasilang.model.lexico.Token;
+import br.edu.pucgoias.brasilang.exception.LexicalException;
 
 @Service
 public final class LexerService {
@@ -58,8 +59,7 @@ public final class LexerService {
             return t;
 
         char bad = preVisualizeNextCharacter(l, 0);
-
-        throw error("Invalid character: '" + bad + "'", startLine, startCol);
+        throw new LexicalException("Caractere inválido: '" + bad + "'", startLine, startCol);
     }
 
     // ===== core stream helpers =====
@@ -301,16 +301,15 @@ public final class LexerService {
                     case 't' -> sb.append('\t');
                     case '"' -> sb.append('"');
                     case '\\' -> sb.append('\\');
-                    default -> sb.append(esc); // keep unknown escapes as-is
+                    default -> sb.append(esc);
                 }
                 continue;
             }
 
-            // normal char
             sb.append(consumeAndGetCurrentCharacter(l));
         }
 
-        throw error("Unterminated string literal", startLine, startCol);
+        throw new LexicalException("String literal não terminada", startLine, startCol);
     }
 
     private Token tryReadCharLiteral(Lexer l, int startLine, int startCol) {
@@ -319,7 +318,7 @@ public final class LexerService {
 
         consumeCharacters(l, 1); // consume opening '
         if (isEndOfSource(l))
-            throw error("Unterminated character literal", startLine, startCol);
+            throw new LexicalException("Character literal não terminado", startLine, startCol);
 
         char ch = preVisualizeNextCharacter(l, 0);
         String literal;
@@ -327,7 +326,7 @@ public final class LexerService {
         if (ch == '\\') { // escape sequence
             consumeCharacters(l, 1);
             if (isEndOfSource(l))
-                throw error("Unterminated character literal", startLine, startCol);
+                throw new LexicalException("Character literal não terminado", startLine, startCol);
             char esc = preVisualizeNextCharacter(l, 0);
             consumeCharacters(l, 1);
             literal = "\\" + esc;
@@ -337,7 +336,7 @@ public final class LexerService {
         }
 
         if (isEndOfSource(l) || preVisualizeNextCharacter(l, 0) != '\'') {
-            throw error("Unterminated character literal, expected a closing '", startLine, startCol);
+            throw new LexicalException("Character literal não terminado, esperado '", startLine, startCol);
         }
 
         consumeCharacters(l, 1); // consume closing '

@@ -14,6 +14,14 @@ public class Assign implements AbstractStatement {
                 this.newValue = newValue;
         }
 
+        public AbstractExpression getTarget() {
+                return target;
+        }
+
+        public AbstractExpression getNewValue() {
+                return newValue;
+        }
+
         @Override
         public void translate(TranslationContext ctx) {
                 ctx.getBuilder()
