@@ -33,38 +33,64 @@ public class BrasilangApplication {
   @PostConstruct
   void executar() {
     String src = """
-        // Teste de Matrizes
-        imprima("--- Testando Matrizes ---");
-        inteiro minhaMatriz[2][3];
-        inteiro i = 0;
-        inteiro j = 0;
-        enquanto (i < 2) {
-            j = 0;
-            enquanto (j < 3) {
-                minhaMatriz[i][j] = i * 10 + j;
-                imprima(minhaMatriz[i][j]);
-                j = j + 1;
+        // Exemplo abrangente: demonstra tipos, arrays, condicionais, laços, funções e chamada recursiva
+
+        imprima("=== Exemplo: recursos principais e fatorial recursivo ===");
+
+        // Tipos básicos
+        inteiro a = 10;
+        inteiro b = 3;
+        flutuante f = 2.5;
+        duplo d = 3.14159;
+        caractere c = 'Z';
+        string msg = "Ola, Brasilang!";
+        booleano flag = verdadeiro;
+
+        imprima(msg);
+        imprima(a);
+        imprima(f);
+        imprima(c);
+
+        // Função recursiva para calcular fatorial de n
+        funcao inteiro fatorial(inteiro n) {
+            se (n <= 1) {
+                retorne 1;
+            } senao {
+                retorne n * fatorial(n - 1);
             }
+        }
+
+        // Usa a função fatorial para calcular fatorial de 5
+        inteiro n = 5;
+        inteiro resultado = fatorial(n);
+        imprima("Fatorial de 5:");
+        imprima(resultado);
+
+        // Loop e array
+        inteiro arr[6];
+        inteiro i = 0;
+        enquanto (i < 6) {
+            arr[i] = fatorial(i); // chama fatorial dentro do loop
+            imprima(arr[i]);
             i = i + 1;
         }
-        imprima("Fim do teste de matrizes.");
-        imprima("\\n");
 
-        // Teste de Booleanos e Strings
-        imprima("--- Testando Booleanos e Strings ---");
-        booleano ok = verdadeiro;
-        se (ok e (1 < 2)) {
-            imprima("Teste booleano: SUCESSO");
+        // Condicional usando operadores lógicos
+        se (resultado > 100 e flag) {
+            imprima("Resultado grande e flag verdadeiro");
         } senao {
-            imprima("Teste booleano: FALHOU");
+            imprima("Resultado pequeno ou flag falso");
         }
 
-        caractere letra = 'B';
-        imprima(letra);
+        // Demonstração de chamada aninhada e uso de funções auxiliares
+        funcao inteiro adiciona(inteiro x, inteiro y) {
+            retorne x + y;
+        }
+        inteiro soma = adiciona(2, adiciona(3, 4));
+        imprima("Soma aninhada:");
+        imprima(soma);
 
-        string saudacao = "Ola, Brasilang!";
-        imprima(saudacao);
-        imprima("\\nFim dos testes.");
+        imprima("=== Fim do exemplo ===");
         """;
     Lexer lexer = new Lexer(src);
     List<Token> tokenList = lexerService.buildTokenList(lexer);

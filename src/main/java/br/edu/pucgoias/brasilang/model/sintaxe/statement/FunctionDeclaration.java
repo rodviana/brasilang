@@ -34,9 +34,7 @@ public class FunctionDeclaration implements AbstractStatement {
 
     @Override
     public void translate(TranslationContext ctx) {
-        String params = parameters.stream()
-                .map(p -> ctx.toCType(p.type) + " " + p.name)
-                .collect(Collectors.joining(", "));
+        String params = parameters.stream().map(p -> ctx.toCType(p.type) + " " + p.name).collect(Collectors.joining(", "));
         ctx.getBuilder().appendLine(ctx.toCType(returnType) + " " + name + "(" + params + ") {");
         ctx.getBuilder().indent();
         for (AbstractStatement st : body) {

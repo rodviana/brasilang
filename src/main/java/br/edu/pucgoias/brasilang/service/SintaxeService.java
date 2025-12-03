@@ -14,12 +14,15 @@ import br.edu.pucgoias.brasilang.model.sintaxe.expression.Literal;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.Variable;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.BinaryOperation;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.UnaryOperation;
+import br.edu.pucgoias.brasilang.model.sintaxe.expression.FunctionCall;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.AbstractStatement;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.Assign;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.ConditionalStruct;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.RepetitionStruct;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.VariableDeclaration;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.Print;
+import br.edu.pucgoias.brasilang.model.sintaxe.statement.FunctionDeclaration;
+import br.edu.pucgoias.brasilang.model.sintaxe.statement.ReturnStatement;
 
 @Service
 public class SintaxeService {
@@ -61,6 +64,10 @@ public class SintaxeService {
             case PARA:
             case REPITA:
                 return parseRepetitionStruct(sintaxe, token);
+            case RETORNE:
+                return parseReturnStatement(sintaxe);
+            case FUNCAO:
+                return parseFunctionDeclaration(sintaxe);
             default:
                 throw new RuntimeException("Token inesperado: " + token.type);
         }
@@ -278,7 +285,7 @@ public class SintaxeService {
         return parsePrimary(sintaxe);
     }
 
-    // primários (literais, variáveis, parênteses)
+    // primários (literais, variáveis, parênteses, chamadas de função)
     private AbstractExpression parsePrimary(Sintaxe sintaxe) {
         Token token = sintaxe.advanceToNextToken();
         if (token == null) {
@@ -302,6 +309,24 @@ public class SintaxeService {
             case FALSE:
                 return new Literal(false);
             case ID:
+                // Chamada de função: ID(...)
+                if (sintaxe.previewNextToken() != null && sintaxe.previewNextToken().type == EnumTokenType.LPAR) {
+                    sintaxe.advanceToNextToken(); // consome LPAR
+                    List<AbstractExpression> args = new ArrayList<>();
+                    if (sintaxe.previewNextToken() != null && sintaxe.previewNextToken().type != EnumTokenType.RPAR) {
+                        while (true) {
+                            args.add(parseExpression(sintaxe));
+                            if (sintaxe.previewNextToken() != null && sintaxe.previewNextToken().type == EnumTokenType.COMMA) {
+                                sintaxe.advanceToNextToken(); // consome COMMA
+                                continue;
+                            }
+                            break;
+                        }
+                    }
+                    sintaxe.advanceToNextToken(); // consome RPAR
+                    return new FunctionCall(token.lexeme, args);
+                }
+
                 // Pode ser uma variável simples ou um acesso a vetor
                 if (sintaxe.previewNextToken() != null && sintaxe.previewNextToken().type == EnumTokenType.LBRACK) {
                     List<AbstractExpression> indices = new ArrayList<>();
@@ -321,6 +346,41 @@ public class SintaxeService {
             default:
                 throw new RuntimeException("Expressão não suportada: " + token.type);
         }
+    }
+
+    // Parse declaração de função: funcao <tipo> <nome>( [ <tipo> <nome> {, <tipo> <nome>} ] ) { ... }
+    private FunctionDeclaration parseFunctionDeclaration(Sintaxe sintaxe) {
+        Token returnTypeToken = sintaxe.advanceToNextToken(); // tipo de retorno
+        Token nameToken = sintaxe.advanceToNextToken(); // nome da função (ID)
+
+        // Consome '('
+        sintaxe.advanceToNextToken(); // LPAR
+        List<FunctionDeclaration.Parameter> params = new ArrayList<>();
+        if (sintaxe.previewNextToken() != null && sintaxe.previewNextToken().type != EnumTokenType.RPAR) {
+            while (true) {
+                Token pType = sintaxe.advanceToNextToken(); // tipo do parametro
+                Token pName = sintaxe.advanceToNextToken(); // nome do parametro (ID)
+                params.add(new FunctionDeclaration.Parameter(pName.lexeme, pType.type));
+                if (sintaxe.previewNextToken() != null && sintaxe.previewNextToken().type == EnumTokenType.COMMA) {
+                    sintaxe.advanceToNextToken(); // consome COMMA
+                    continue;
+                }
+                break;
+            }
+        }
+        sintaxe.advanceToNextToken(); // Consome RPAR
+
+        sintaxe.advanceToNextToken(); // Consome LBRACE
+        List<AbstractStatement> body = buildBlock(sintaxe);
+
+        return new FunctionDeclaration(returnTypeToken.type, nameToken.lexeme, params, body);
+    }
+
+    // Parse return: retorne expr;
+    private ReturnStatement parseReturnStatement(Sintaxe sintaxe) {
+        AbstractExpression expr = parseExpression(sintaxe);
+        sintaxe.advanceToNextToken(); // Consome SEMI
+        return new ReturnStatement(expr);
     }
 
 }
