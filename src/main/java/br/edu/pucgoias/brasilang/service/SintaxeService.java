@@ -15,6 +15,7 @@ import br.edu.pucgoias.brasilang.model.sintaxe.expression.Variable;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.BinaryOperation;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.UnaryOperation;
 import br.edu.pucgoias.brasilang.model.sintaxe.expression.FunctionCall;
+import br.edu.pucgoias.brasilang.model.sintaxe.expression.Cast;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.AbstractStatement;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.Assign;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.ConditionalStruct;
@@ -272,8 +273,30 @@ public class SintaxeService {
         return expr;
     }
 
-    // unários (-, +)
+    // unários (-, +, nao, casts)
     private AbstractExpression parseUnary(Sintaxe sintaxe) {
+        // Detecta cast na forma: ( tipo ) <expressao>
+        List<Token> tokens = sintaxe.getTokenList();
+        int pos = sintaxe.getPosition();
+        if (pos + 2 < tokens.size()) {
+            Token t0 = tokens.get(pos);
+            Token t1 = tokens.get(pos + 1);
+            Token t2 = tokens.get(pos + 2);
+            boolean t1IsType = t1 != null && (t1.type == EnumTokenType.INT || t1.type == EnumTokenType.FLOAT
+                    || t1.type == EnumTokenType.DOUBLE || t1.type == EnumTokenType.CHAR
+                    || t1.type == EnumTokenType.STRING || t1.type == EnumTokenType.BOOL
+                    || t1.type == EnumTokenType.VOID);
+            if (t0 != null && t0.type == EnumTokenType.LPAR && t1IsType && t2 != null && t2.type == EnumTokenType.RPAR) {
+                // consume '(' TYPE ')'
+                sintaxe.advanceToNextToken(); // LPAR
+                Token typeToken = sintaxe.advanceToNextToken(); // tipo
+                sintaxe.advanceToNextToken(); // RPAR
+                // Aplica cast ao próximo unary (mesma precedência dos unários)
+                AbstractExpression right = parseUnary(sintaxe);
+                return new Cast(typeToken.type, right);
+            }
+        }
+
         Token next = sintaxe.previewNextToken();
         if (next != null && (next.type == EnumTokenType.MINUS || next.type == EnumTokenType.PLUS
                 || next.type == EnumTokenType.NOT)) {
