@@ -27,6 +27,10 @@ public class RepetitionStruct implements AbstractStatement {
                 return loopBody;
         }
 
+        public EnumTokenType getType() {
+                return type;
+        }
+
         @Override
         public void translate(TranslationContext ctx) {
                 switch (type) {

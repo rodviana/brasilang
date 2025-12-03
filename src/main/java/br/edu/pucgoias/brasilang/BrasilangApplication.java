@@ -1,5 +1,6 @@
 package br.edu.pucgoias.brasilang;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,16 +9,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import br.edu.pucgoias.brasilang.model.lexico.Lexer;
 import br.edu.pucgoias.brasilang.model.lexico.Token;
+import br.edu.pucgoias.brasilang.model.optimizer.EnumOptimizerParameter;
 import br.edu.pucgoias.brasilang.model.sintaxe.Sintaxe;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.AbstractStatement;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.Program;
 import br.edu.pucgoias.brasilang.service.LexerService;
+import br.edu.pucgoias.brasilang.service.OptimizerService;
+import br.edu.pucgoias.brasilang.service.SemanticAnalyzer;
 import br.edu.pucgoias.brasilang.service.SintaxeService;
 import br.edu.pucgoias.brasilang.service.TranslateService;
-import br.edu.pucgoias.brasilang.service.SemanticAnalyzer;
 import br.edu.pucgoias.brasilang.exception.LexicalException;
-import br.edu.pucgoias.brasilang.exception.SyntaxException;
 import br.edu.pucgoias.brasilang.exception.SemanticException;
+import br.edu.pucgoias.brasilang.exception.SyntaxException;
 import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication
@@ -35,6 +38,8 @@ public class BrasilangApplication {
   TranslateService translateService;
   @Autowired
   SemanticAnalyzer semanticAnalyzer;
+  @Autowired
+  OptimizerService optimizerService;
 
   @PostConstruct
   void executar() {
@@ -188,6 +193,14 @@ public class BrasilangApplication {
       // Análise semântica
       semanticAnalyzer.analyze(program);
       System.out.println("Análise semântica: OK");
+      
+      // Otimizações: especificar quais deseja aplicar
+      List<EnumOptimizerParameter> optimizations = Arrays.asList(
+          EnumOptimizerParameter.REMOVE_PRINTS,
+          EnumOptimizerParameter.INLINE_FUNCTIONS,
+          EnumOptimizerParameter.REMOVE_DEAD_CODE
+      );
+      program = optimizerService.optimize(program, optimizations);
       
       String cCode = translateService.generateCode(program);
       System.out.println(cCode);
