@@ -11,6 +11,8 @@ import br.edu.pucgoias.brasilang.model.lexico.Token;
 import br.edu.pucgoias.brasilang.model.sintaxe.Sintaxe;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.AbstractStatement;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.Program;
+import br.edu.pucgoias.brasilang.model.translate.OptimizationLevel;
+import br.edu.pucgoias.brasilang.model.translate.TranslationResult;
 import br.edu.pucgoias.brasilang.service.LexerService;
 import br.edu.pucgoias.brasilang.service.SintaxeService;
 import br.edu.pucgoias.brasilang.service.TranslateService;
@@ -33,38 +35,26 @@ public class BrasilangApplication {
   @PostConstruct
   void executar() {
     String src = """
-        // Teste de Matrizes
-        imprima("--- Testando Matrizes ---");
-        inteiro minhaMatriz[2][3];
-        inteiro i = 0;
-        inteiro j = 0;
-        enquanto (i < 2) {
-            j = 0;
-            enquanto (j < 3) {
-                minhaMatriz[i][j] = i * 10 + j;
-                imprima(minhaMatriz[i][j]);
-                j = j + 1;
+        funcao inteiro fatorial(inteiro n) {
+            se (n <= 1) {
+                retorne 1;
             }
-            i = i + 1;
-        }
-        imprima("Fim do teste de matrizes.");
-        imprima("\\n");
-
-        // Teste de Booleanos e Strings
-        imprima("--- Testando Booleanos e Strings ---");
-        booleano ok = verdadeiro;
-        se (ok e (1 < 2)) {
-            imprima("Teste booleano: SUCESSO");
-        } senao {
-            imprima("Teste booleano: FALHOU");
+            retorne n * fatorial(n - 1);
         }
 
-        caractere letra = 'B';
-        imprima(letra);
+        funcao flutuante paraFlutuante(inteiro valor) {
+            retorne (flutuante) valor;
+        }
 
-        string saudacao = "Ola, Brasilang!";
-        imprima(saudacao);
-        imprima("\\nFim dos testes.");
+        imprima("--- Testando funcoes, recursao e casting ---");
+        inteiro numero = 5;
+        inteiro resultado = fatorial(numero);
+        imprima("Fatorial:");
+        imprima(resultado);
+
+        flutuante numeroReal = paraFlutuante(numero);
+        imprima("Numero como flutuante:");
+        imprima(numeroReal);
         """;
     Lexer lexer = new Lexer(src);
     List<Token> tokenList = lexerService.buildTokenList(lexer);
@@ -76,8 +66,12 @@ public class BrasilangApplication {
     statements.forEach(statement -> System.out.println(statement.toString()));
 
     Program program = new Program(statements);
-    String cCode = translateService.generateCode(program);
-    System.out.println(cCode);
+    TranslationResult result = translateService.translate(program, OptimizationLevel.O2, true);
+    System.out.println(result.cCode());
+    if (result.hasAssembly()) {
+      System.out.println("\n/* Assembly gerado (O2) */");
+      System.out.println(result.assembly());
+    }
 
   }
 }

@@ -37,6 +37,14 @@ public class FunctionDeclaration implements AbstractStatement {
         String params = parameters.stream()
                 .map(p -> ctx.toCType(p.type) + " " + p.name)
                 .collect(Collectors.joining(", "));
+
+        // Mantém escopo separado para parâmetros/variáveis da função.
+        java.util.Map<String, String> previousScope = new java.util.HashMap<>(ctx.getVariables());
+        ctx.getVariables().clear();
+        for (Parameter p : parameters) {
+            ctx.declareVariable(p.name, ctx.toCType(p.type));
+        }
+
         ctx.getBuilder().appendLine(ctx.toCType(returnType) + " " + name + "(" + params + ") {");
         ctx.getBuilder().indent();
         for (AbstractStatement st : body) {
@@ -45,6 +53,9 @@ public class FunctionDeclaration implements AbstractStatement {
         ctx.getBuilder().outdent();
         ctx.getBuilder().appendLine("}");
         ctx.getBuilder().appendLine("");
+
+        ctx.getVariables().clear();
+        ctx.getVariables().putAll(previousScope);
     }
 
     @Override

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import br.edu.pucgoias.brasilang.model.error.BrasilangException;
 import br.edu.pucgoias.brasilang.model.lexico.EnumTokenType;
 import br.edu.pucgoias.brasilang.model.lexico.Lexer;
 import br.edu.pucgoias.brasilang.model.lexico.Token;
@@ -59,7 +60,7 @@ public final class LexerService {
 
         char bad = preVisualizeNextCharacter(l, 0);
 
-        throw error("Invalid character: '" + bad + "'", startLine, startCol);
+        throw error("Caractere inválido: '" + bad + "'", l, startLine, startCol);
     }
 
     // ===== core stream helpers =====
@@ -310,7 +311,7 @@ public final class LexerService {
             sb.append(consumeAndGetCurrentCharacter(l));
         }
 
-        throw error("Unterminated string literal", startLine, startCol);
+        throw error("Literal de string sem fechamento", l, startLine, startCol);
     }
 
     private Token tryReadCharLiteral(Lexer l, int startLine, int startCol) {
@@ -319,7 +320,7 @@ public final class LexerService {
 
         consumeCharacters(l, 1); // consume opening '
         if (isEndOfSource(l))
-            throw error("Unterminated character literal", startLine, startCol);
+            throw error("Literal de caractere sem fechamento", l, startLine, startCol);
 
         char ch = preVisualizeNextCharacter(l, 0);
         String literal;
@@ -327,7 +328,7 @@ public final class LexerService {
         if (ch == '\\') { // escape sequence
             consumeCharacters(l, 1);
             if (isEndOfSource(l))
-                throw error("Unterminated character literal", startLine, startCol);
+                throw error("Literal de caractere sem fechamento", l, startLine, startCol);
             char esc = preVisualizeNextCharacter(l, 0);
             consumeCharacters(l, 1);
             literal = "\\" + esc;
@@ -337,7 +338,8 @@ public final class LexerService {
         }
 
         if (isEndOfSource(l) || preVisualizeNextCharacter(l, 0) != '\'') {
-            throw error("Unterminated character literal, expected a closing '", startLine, startCol);
+            throw error("Literal de caractere sem fechamento, esperado um ' de encerramento", l, startLine,
+                    startCol);
         }
 
         consumeCharacters(l, 1); // consume closing '
@@ -349,7 +351,15 @@ public final class LexerService {
         return new Token(tt, lex, l, c);
     }
 
-    private RuntimeException error(String msg, int l, int c) {
-        return new RuntimeException("Lexical error at " + l + ":" + c + " - " + msg);
+    private BrasilangException error(String msg, Lexer lexer, int line, int col) {
+        String hint = "";
+        if (lexer != null) {
+            int idx = Math.min(Math.max(0, lexer.getIndex()), lexer.getSource().length());
+            int from = Math.max(0, idx - 10);
+            int to = Math.min(lexer.getSource().length(), idx + 10);
+            String snippet = lexer.getSource().substring(from, to).replace("\n", "\\n");
+            hint = " Contexto próximo: \"" + snippet + "\"";
+        }
+        return BrasilangException.lexical(msg + "." + hint, line, col);
     }
 }
