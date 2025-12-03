@@ -24,6 +24,7 @@ import br.edu.pucgoias.brasilang.model.sintaxe.statement.VariableDeclaration;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.Print;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.FunctionDeclaration;
 import br.edu.pucgoias.brasilang.model.sintaxe.statement.ReturnStatement;
+import br.edu.pucgoias.brasilang.exception.SyntaxException;
 
 @Service
 public class SintaxeService {
@@ -33,8 +34,11 @@ public class SintaxeService {
         try {
             while (!this.isNextTokenEOF(sintaxe))
                 program.add(this.getNextStatement(sintaxe));
+        } catch (SyntaxException e) {
+            throw e;
         } catch (Exception e) {
             program.forEach(statement -> System.out.println(statement.toString()));
+            throw e;
         }
 
         return program;
@@ -70,13 +74,16 @@ public class SintaxeService {
             case FUNCAO:
                 return parseFunctionDeclaration(sintaxe);
             default:
-                throw new RuntimeException("Token inesperado: " + token.type);
+                throw new SyntaxException("Token inesperado", token);
         }
     }
 
     // Parse declaração de variável: inteiro g = 10; ou inteiro vetor[10];
     private VariableDeclaration parseVariableDeclaration(Sintaxe sintaxe, Token typeToken) {
         Token varName = sintaxe.advanceToNextToken(); // ID
+        if (varName == null || varName.type != EnumTokenType.ID) {
+            throw new SyntaxException("Esperado identificador após tipo", varName != null ? varName : typeToken);
+        }
         List<AbstractExpression> dimensions = null;
         AbstractExpression initialization = null;
 
@@ -85,14 +92,20 @@ public class SintaxeService {
             while (sintaxe.previewNextToken().type == EnumTokenType.LBRACK) {
                 sintaxe.advanceToNextToken(); // Consome LBRACK
                 dimensions.add(parseExpression(sintaxe));
-                sintaxe.advanceToNextToken(); // Consome RBRACK
+                Token rbrack = sintaxe.advanceToNextToken();
+                if (rbrack == null || rbrack.type != EnumTokenType.RBRACK) {
+                    throw new SyntaxException("Esperado ']'", rbrack != null ? rbrack : varName);
+                }
             }
         } else if (sintaxe.previewNextToken().type == EnumTokenType.ASSIGN) {
             sintaxe.advanceToNextToken(); // Consome ASSIGN
             initialization = parseExpression(sintaxe);
         }
 
-        sintaxe.advanceToNextToken(); // Consome SEMI
+        Token semi = sintaxe.advanceToNextToken();
+        if (semi == null || semi.type != EnumTokenType.SEMI) {
+            throw new SyntaxException("Esperado ';' ao final da declaração", semi != null ? semi : varName);
+        }
         return new VariableDeclaration(varName.lexeme, typeToken.type, dimensions, initialization);
     }
 
@@ -104,40 +117,70 @@ public class SintaxeService {
             while (sintaxe.previewNextToken().type == EnumTokenType.LBRACK) {
                 sintaxe.advanceToNextToken(); // Consome LBRACK
                 indices.add(parseExpression(sintaxe));
-                sintaxe.advanceToNextToken(); // Consome RBRACK
+                Token rbrack = sintaxe.advanceToNextToken();
+                if (rbrack == null || rbrack.type != EnumTokenType.RBRACK) {
+                    throw new SyntaxException("Esperado ']'", rbrack != null ? rbrack : idToken);
+                }
             }
             target = new ArrayAccess(idToken.lexeme, indices);
         } else {
             target = new Variable(idToken.lexeme);
         }
 
-        sintaxe.advanceToNextToken(); // Consome ASSIGN
+        Token assign = sintaxe.advanceToNextToken();
+        if (assign == null || assign.type != EnumTokenType.ASSIGN) {
+            throw new SyntaxException("Esperado '='", assign != null ? assign : idToken);
+        }
         AbstractExpression expr = parseExpression(sintaxe);
-        sintaxe.advanceToNextToken(); // Consome SEMI
+        Token semi = sintaxe.advanceToNextToken();
+        if (semi == null || semi.type != EnumTokenType.SEMI) {
+            throw new SyntaxException("Esperado ';'", semi != null ? semi : idToken);
+        }
         return new Assign(target, expr);
     }
 
     // Parse comando de impressão: imprima(expr);
     private Print parsePrint(Sintaxe sintaxe) {
-        sintaxe.advanceToNextToken(); // Consome LPAR
+        Token lpar = sintaxe.advanceToNextToken();
+        if (lpar == null || lpar.type != EnumTokenType.LPAR) {
+            throw new SyntaxException("Esperado '(' após 'imprima'", lpar);
+        }
         AbstractExpression expr = parseExpression(sintaxe);
-        sintaxe.advanceToNextToken(); // Consome RPAR
-        sintaxe.advanceToNextToken(); // Consome SEMI
+        Token rpar = sintaxe.advanceToNextToken();
+        if (rpar == null || rpar.type != EnumTokenType.RPAR) {
+            throw new SyntaxException("Esperado ')'", rpar);
+        }
+        Token semi = sintaxe.advanceToNextToken();
+        if (semi == null || semi.type != EnumTokenType.SEMI) {
+            throw new SyntaxException("Esperado ';'", semi);
+        }
         return new Print(expr);
     }
 
     // Parse estrutura condicional: se (...) { ... } senao { ... }
     private ConditionalStruct parseConditionalStruct(Sintaxe sintaxe) {
-        sintaxe.advanceToNextToken(); // Consome LPAR
+        Token lpar = sintaxe.advanceToNextToken();
+        if (lpar == null || lpar.type != EnumTokenType.LPAR) {
+            throw new SyntaxException("Esperado '(' após 'se'", lpar);
+        }
         AbstractExpression condition = parseExpression(sintaxe);
-        sintaxe.advanceToNextToken(); // Consome RPAR
-        sintaxe.advanceToNextToken(); // Consome LBRACE
+        Token rpar = sintaxe.advanceToNextToken();
+        if (rpar == null || rpar.type != EnumTokenType.RPAR) {
+            throw new SyntaxException("Esperado ')'", rpar);
+        }
+        Token lbrace = sintaxe.advanceToNextToken();
+        if (lbrace == null || lbrace.type != EnumTokenType.LBRACE) {
+            throw new SyntaxException("Esperado '{'", lbrace);
+        }
         List<AbstractStatement> thenBlock = buildBlock(sintaxe);
         List<AbstractStatement> elseBlock = null;
         Token next = sintaxe.previewNextToken();
         if (next != null && next.type == EnumTokenType.SENAO) {
             sintaxe.advanceToNextToken(); // Consome SENAO
-            sintaxe.advanceToNextToken(); // Consome LBRACE
+            Token elseBrace = sintaxe.advanceToNextToken();
+            if (elseBrace == null || elseBrace.type != EnumTokenType.LBRACE) {
+                throw new SyntaxException("Esperado '{'", elseBrace);
+            }
             elseBlock = buildBlock(sintaxe);
         }
         return new ConditionalStruct(condition, thenBlock, elseBlock);
@@ -146,20 +189,43 @@ public class SintaxeService {
     // Parse estrutura de repetição: enquanto (...) { ... } ou para (...) { ... }
     private RepetitionStruct parseRepetitionStruct(Sintaxe sintaxe, Token typeToken) {
         if (typeToken.type == EnumTokenType.REPITA) {
-            // Estrutura: repita { ... } enquanto (condicao);
-            sintaxe.advanceToNextToken(); // Consome LBRACE
+            Token lbrace = sintaxe.advanceToNextToken();
+            if (lbrace == null || lbrace.type != EnumTokenType.LBRACE) {
+                throw new SyntaxException("Esperado '{'", lbrace);
+            }
             List<AbstractStatement> body = buildBlock(sintaxe);
-            sintaxe.advanceToNextToken(); // Consome ENQUANTO
-            sintaxe.advanceToNextToken(); // Consome LPAR
+            Token enquanto = sintaxe.advanceToNextToken();
+            if (enquanto == null || enquanto.type != EnumTokenType.ENQUANTO) {
+                throw new SyntaxException("Esperado 'enquanto' após bloco", enquanto);
+            }
+            Token lpar = sintaxe.advanceToNextToken();
+            if (lpar == null || lpar.type != EnumTokenType.LPAR) {
+                throw new SyntaxException("Esperado '('", lpar);
+            }
             AbstractExpression condition = parseExpression(sintaxe);
-            sintaxe.advanceToNextToken(); // Consome RPAR
-            sintaxe.advanceToNextToken(); // Consome SEMI
+            Token rpar = sintaxe.advanceToNextToken();
+            if (rpar == null || rpar.type != EnumTokenType.RPAR) {
+                throw new SyntaxException("Esperado ')'", rpar);
+            }
+            Token semi = sintaxe.advanceToNextToken();
+            if (semi == null || semi.type != EnumTokenType.SEMI) {
+                throw new SyntaxException("Esperado ';'", semi);
+            }
             return new RepetitionStruct(typeToken.type, condition, body);
-        } else { // ENQUANTO ou PARA
-            sintaxe.advanceToNextToken(); // Consome LPAR
+        } else {
+            Token lpar = sintaxe.advanceToNextToken();
+            if (lpar == null || lpar.type != EnumTokenType.LPAR) {
+                throw new SyntaxException("Esperado '('", lpar);
+            }
             AbstractExpression condition = parseExpression(sintaxe);
-            sintaxe.advanceToNextToken(); // Consome RPAR
-            sintaxe.advanceToNextToken(); // Consome LBRACE
+            Token rpar = sintaxe.advanceToNextToken();
+            if (rpar == null || rpar.type != EnumTokenType.RPAR) {
+                throw new SyntaxException("Esperado ')'", rpar);
+            }
+            Token lbrace = sintaxe.advanceToNextToken();
+            if (lbrace == null || lbrace.type != EnumTokenType.LBRACE) {
+                throw new SyntaxException("Esperado '{'", lbrace);
+            }
             List<AbstractStatement> body = buildBlock(sintaxe);
             return new RepetitionStruct(typeToken.type, condition, body);
         }
@@ -171,7 +237,10 @@ public class SintaxeService {
         while (sintaxe.previewNextToken() != null && sintaxe.previewNextToken().type != EnumTokenType.RBRACE) {
             block.add(getNextStatement(sintaxe));
         }
-        sintaxe.advanceToNextToken(); // Consome RBRACE
+        Token rbrace = sintaxe.advanceToNextToken();
+        if (rbrace == null || rbrace.type != EnumTokenType.RBRACE) {
+            throw new SyntaxException("Esperado '}'", rbrace);
+        }
         return block;
     }
 
@@ -312,7 +381,7 @@ public class SintaxeService {
     private AbstractExpression parsePrimary(Sintaxe sintaxe) {
         Token token = sintaxe.advanceToNextToken();
         if (token == null) {
-            throw new RuntimeException("Expressão incompleta");
+            throw new SyntaxException("Expressão incompleta", 0, 0);
         }
         switch (token.type) {
             case INTLIT:
@@ -321,7 +390,6 @@ public class SintaxeService {
                 return new Literal(Double.parseDouble(token.lexeme));
             case CHARLIT:
                 if (token.lexeme.startsWith("\\")) {
-                    // Para sequências de escape como \n, \t, etc.
                     return new Literal(token.lexeme);
                 }
                 return new Literal(token.lexeme.charAt(0));
@@ -346,7 +414,10 @@ public class SintaxeService {
                             break;
                         }
                     }
-                    sintaxe.advanceToNextToken(); // consome RPAR
+                    Token funcRpar = sintaxe.advanceToNextToken();
+                    if (funcRpar == null || funcRpar.type != EnumTokenType.RPAR) {
+                        throw new SyntaxException("Esperado ')'", funcRpar);
+                    }
                     return new FunctionCall(token.lexeme, args);
                 }
 
@@ -357,43 +428,69 @@ public class SintaxeService {
                             && sintaxe.previewNextToken().type == EnumTokenType.LBRACK) {
                         sintaxe.advanceToNextToken(); // Consome LBRACK
                         indices.add(parseExpression(sintaxe));
-                        sintaxe.advanceToNextToken(); // Consome RBRACK
+                        Token arrRbrack = sintaxe.advanceToNextToken();
+                        if (arrRbrack == null || arrRbrack.type != EnumTokenType.RBRACK) {
+                            throw new SyntaxException("Esperado ']'", arrRbrack);
+                        }
                     }
                     return new ArrayAccess(token.lexeme, indices);
                 }
                 return new Variable(token.lexeme);
             case LPAR:
                 AbstractExpression expr = parseExpression(sintaxe);
-                sintaxe.advanceToNextToken(); // Consome RPAR
+                Token exprRpar = sintaxe.advanceToNextToken();
+                if (exprRpar == null || exprRpar.type != EnumTokenType.RPAR) {
+                    throw new SyntaxException("Esperado ')'", exprRpar);
+                }
                 return expr;
             default:
-                throw new RuntimeException("Expressão não suportada: " + token.type);
+                throw new SyntaxException("Expressão não suportada", token);
         }
     }
 
     // Parse declaração de função: funcao <tipo> <nome>( [ <tipo> <nome> {, <tipo> <nome>} ] ) { ... }
     private FunctionDeclaration parseFunctionDeclaration(Sintaxe sintaxe) {
-        Token returnTypeToken = sintaxe.advanceToNextToken(); // tipo de retorno
-        Token nameToken = sintaxe.advanceToNextToken(); // nome da função (ID)
+        Token returnTypeToken = sintaxe.advanceToNextToken();
+        if (returnTypeToken == null) {
+            throw new SyntaxException("Tipo de retorno esperado após 'funcao'", returnTypeToken);
+        }
+        Token nameToken = sintaxe.advanceToNextToken();
+        if (nameToken == null || nameToken.type != EnumTokenType.ID) {
+            throw new SyntaxException("Nome de função esperado", nameToken);
+        }
 
-        // Consome '('
-        sintaxe.advanceToNextToken(); // LPAR
+        Token lpar = sintaxe.advanceToNextToken();
+        if (lpar == null || lpar.type != EnumTokenType.LPAR) {
+            throw new SyntaxException("Esperado '('", lpar);
+        }
         List<FunctionDeclaration.Parameter> params = new ArrayList<>();
         if (sintaxe.previewNextToken() != null && sintaxe.previewNextToken().type != EnumTokenType.RPAR) {
             while (true) {
-                Token pType = sintaxe.advanceToNextToken(); // tipo do parametro
-                Token pName = sintaxe.advanceToNextToken(); // nome do parametro (ID)
+                Token pType = sintaxe.advanceToNextToken();
+                if (pType == null) {
+                    throw new SyntaxException("Tipo de parâmetro esperado", pType);
+                }
+                Token pName = sintaxe.advanceToNextToken();
+                if (pName == null || pName.type != EnumTokenType.ID) {
+                    throw new SyntaxException("Nome de parâmetro esperado", pName);
+                }
                 params.add(new FunctionDeclaration.Parameter(pName.lexeme, pType.type));
                 if (sintaxe.previewNextToken() != null && sintaxe.previewNextToken().type == EnumTokenType.COMMA) {
-                    sintaxe.advanceToNextToken(); // consome COMMA
+                    sintaxe.advanceToNextToken();
                     continue;
                 }
                 break;
             }
         }
-        sintaxe.advanceToNextToken(); // Consome RPAR
+        Token rpar = sintaxe.advanceToNextToken();
+        if (rpar == null || rpar.type != EnumTokenType.RPAR) {
+            throw new SyntaxException("Esperado ')'", rpar);
+        }
 
-        sintaxe.advanceToNextToken(); // Consome LBRACE
+        Token lbrace = sintaxe.advanceToNextToken();
+        if (lbrace == null || lbrace.type != EnumTokenType.LBRACE) {
+            throw new SyntaxException("Esperado '{'", lbrace);
+        }
         List<AbstractStatement> body = buildBlock(sintaxe);
 
         return new FunctionDeclaration(returnTypeToken.type, nameToken.lexeme, params, body);
@@ -402,7 +499,10 @@ public class SintaxeService {
     // Parse return: retorne expr;
     private ReturnStatement parseReturnStatement(Sintaxe sintaxe) {
         AbstractExpression expr = parseExpression(sintaxe);
-        sintaxe.advanceToNextToken(); // Consome SEMI
+        Token semi = sintaxe.advanceToNextToken();
+        if (semi == null || semi.type != EnumTokenType.SEMI) {
+            throw new SyntaxException("Esperado ';' após retorne", semi);
+        }
         return new ReturnStatement(expr);
     }
 

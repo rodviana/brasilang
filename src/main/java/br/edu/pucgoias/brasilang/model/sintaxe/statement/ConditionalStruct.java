@@ -18,6 +18,18 @@ public class ConditionalStruct implements AbstractStatement {
                 this.elseBody = elseBody;
         }
 
+        public AbstractExpression getFlag() {
+                return flag;
+        }
+
+        public List<AbstractStatement> getIfBody() {
+                return ifBody;
+        }
+
+        public List<AbstractStatement> getElseBody() {
+                return elseBody;
+        }
+
         @Override
         public void translate(TranslationContext ctx) {
                 ctx.getBuilder().appendLine("if (" + flag.translate(ctx) + ") {");

@@ -16,6 +16,14 @@ public class FunctionCall implements AbstractExpression {
         this.arguments = arguments;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public List<AbstractExpression> getArguments() {
+        return arguments;
+    }
+
     @Override
     public String translate(TranslationContext ctx) {
         return name + "(" + arguments.stream()

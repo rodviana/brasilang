@@ -32,6 +32,22 @@ public class FunctionDeclaration implements AbstractStatement {
         this.body = body;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public List<Parameter> getParameters() {
+        return parameters;
+    }
+
+    public List<AbstractStatement> getBody() {
+        return body;
+    }
+
+    public EnumTokenType getReturnType() {
+        return returnType;
+    }
+
     @Override
     public void translate(TranslationContext ctx) {
         String params = parameters.stream().map(p -> ctx.toCType(p.type) + " " + p.name).collect(Collectors.joining(", "));

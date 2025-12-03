@@ -12,6 +12,10 @@ public class ReturnStatement implements AbstractStatement {
         this.expression = expression;
     }
 
+    public AbstractExpression getExpression() {
+        return expression;
+    }
+
     @Override
     public void translate(TranslationContext ctx) {
         ctx.getBuilder().appendLine("return " + expression.translate(ctx) + ";");
